@@ -6,6 +6,7 @@ import ConvexClientProvider from "./ConvexClientProvider";
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
+import Header from "@/components/Header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
          <ConvexClientProvider>
+          <Header />
           {children}
         </ConvexClientProvider>
         </body>
