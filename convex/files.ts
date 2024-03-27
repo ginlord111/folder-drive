@@ -20,7 +20,7 @@ export const getFiles = query({
   args:{
     orgId:v.string()
   },
-  async handler(ctx, args){
+  async handler(ctx, args){ 
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("No user detect");
 
