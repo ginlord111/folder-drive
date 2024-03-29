@@ -2,29 +2,35 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
-import { SignIn, useOrganization } from "@clerk/nextjs";
+import { SignIn, SignInButton, useOrganization, useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import Image from "next/image";
 
 export default function Home() {
-  const {organization} = useOrganization()
+  const organization = useOrganization()
+  const user = useUser()  
+  let orgId:string | undefined = undefined;
 
-  const files = useQuery(api.files.getFiles, organization?.id ? {orgId:organization.id}: 'skip');
+    if(organization.isLoaded &&  user.isLoaded){
+   orgId = organization.organization?.id ?? user.user?.id
+    }
+  const files = useQuery(api.files.getFiles, orgId ? {orgId}: 'skip');
   const createFile = useMutation(api.files.createFile)
  return (
 <> 
   <MaxWidthWrapper className="mt-10">
-      <Button>
-        Sign In
-        <SignIn />
-      </Button>
+   <SignInButton>
+    <Button>
+      Sign in
+    </Button>
+   </SignInButton>
       <Button onClick={()=>{
-        if(!organization){
+        if(!orgId){
           return ;
         }
         createFile({
         name:"hello world",
-        orgId:organization.id
+        orgId,
       })}}>
         Click Me
       </Button>
