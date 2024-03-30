@@ -2,7 +2,7 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
-import { SignIn, SignInButton, useOrganization, useUser } from "@clerk/nextjs";
+import { SignIn, SignInButton, UserButton, useOrganization, useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import Image from "next/image";
 import { hasAccessToOrg } from "@/convex/files";
@@ -23,7 +23,10 @@ export default function Home() {
     <Button>
       Sign in
     </Button>
+
    </SignInButton>
+
+   <UserButton />
       <Button onClick={()=>{
         if(!orgId){
           return ;
