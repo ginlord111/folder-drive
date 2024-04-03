@@ -12,7 +12,7 @@ import {
 import { useMutation, useQuery } from "convex/react";
 import Image from "next/image";
 import { hasAccessToOrg } from "@/convex/files";
-export default function Home() {
+export default function Page() {
   const organization = useOrganization();
   const user = useUser();
   let orgId: string | undefined = undefined;
