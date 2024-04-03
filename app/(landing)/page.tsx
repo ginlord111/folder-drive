@@ -16,7 +16,7 @@ export default function LandingPage() {
           className="inline-block mb-2"
         />
       </div>
-      <div className="pt-4 md:max-w-[750px] max-w-[350px] lg:text-5xl text-xl md:text-3xl text-center tracking-tight text-gray-900 font-bold leading-tight">
+      <div className="pt-4 md:max-w-[750px] max-w-[350px] lg:text-5xl text-xl md:text-3xl text-center tracking-tight text-gray-900 font-bold">
         Upload your files just like Google Drive and Store, Share and Access
         your Digital Hub.
       </div>
