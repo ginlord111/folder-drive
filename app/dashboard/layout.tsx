@@ -5,11 +5,11 @@ interface LandingLayoutProps {
 }
 const LandingLayout = ({ children }: LandingLayoutProps) => {
   return (
-    <div className="relative h-full w-full mt-[80px]">
+    <div className=" h-full w-full mt-[80px] flex gap-8">
       <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 md:mt-[150px] bg-white">
         <SideBar />
       </div>
-      {children}
+      <div className="w-full">{children}</div>
     </div>
   );
 };

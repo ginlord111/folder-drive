@@ -28,7 +28,7 @@ const Header = () => {
               </Link>
               <div className="ml-auto flex ">
                 <div className="hidden lg:flex  lg:space-x-5 ">
-                  <Link href="/sign-in">
+                  <Link href="/dsahboard/files">
                     <Button>Sign in</Button>
                   </Link>
                 </div>
