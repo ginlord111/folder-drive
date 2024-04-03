@@ -16,11 +16,11 @@ export default function LandingPage() {
           className="inline-block mb-2"
         />
       </div>
-      <div className="pt-4 max-w-[650px] text-5xl text-center tracking-tight text-gray-900 font-bold leading-tight">
+      <div className="pt-4 md:max-w-[750px] max-w-[350px] lg:text-5xl text-xl md:text-3xl text-center tracking-tight text-gray-900 font-bold leading-tight">
         Upload your files just like Google Drive and Store, Share and Access
         your Digital Hub.
       </div>
-      <div className="mt-4 text-muted-foreground text-sm leading-8  tracking-tight max-w-[550px] text-center">
+      <div className="mt-4 text-muted-foreground text-sm md:leading-8 leading-5  tracking-tight max-w-[550px] text-center">
         Create Your Account, Store Files Effortlessly, and Access Anywhere: Your
         Ultimate Mini Google Drive Experience
       </div>

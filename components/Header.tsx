@@ -12,9 +12,7 @@ const Header = () => {
           <div className="border-b-2 border-gray-200">
             <div className="flex h-16 items-center">
               {/* FOR MOBILE VIEW */}
-              <Link className="flex items-center" 
-                href={'/'}
-              >
+              <Link className="flex items-center" href={"/"}>
                 <div className="relative pr-2">
                   <Image
                     src={"/folder-picture-iconn.png"}
@@ -24,7 +22,9 @@ const Header = () => {
                     className="inline-block"
                   />
                 </div>
-                <div className="md:ml-4 lg:ml-0">Folder Drive</div>
+                <div className="md:ml-4 lg:ml-0 hidden md:block">
+                  Folder Drive
+                </div>
               </Link>
               <div className="ml-auto flex ">
                 <div className="hidden lg:flex  lg:space-x-5 ">
