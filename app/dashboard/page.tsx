@@ -2,6 +2,7 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+
 import {
   SignIn,
   SignInButton,
@@ -12,7 +13,8 @@ import {
 import { useMutation, useQuery } from "convex/react";
 import Image from "next/image";
 import { hasAccessToOrg } from "@/convex/files";
-export default function Page() {
+export default function DashboardPage() {
+
   const organization = useOrganization();
   const user = useUser();
   let orgId: string | undefined = undefined;
@@ -22,33 +24,9 @@ export default function Page() {
   }
   const files = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
   const createFile = useMutation(api.files.createFile);
-  return (
-    <>
-      <MaxWidthWrapper className="mt-10">
-        <SignInButton>
-          <Button>Sign in</Button>
-        </SignInButton>
+  return <MaxWidthWrapper>
+    <div className="bg-white relative">
 
-        <UserButton />
-        <Button
-          onClick={() => {
-            if (!orgId) {
-              return;
-            }
-            createFile({
-              name: "hello world",
-              orgId,
-            });
-          }}
-        >
-          Click Me
-        </Button>
-        {files?.map((file) => (
-          <div key={file._id} className="text-black">
-            {file.name}
-          </div>
-        ))}
-      </MaxWidthWrapper>
-    </>
-  );
+    </div>
+  </MaxWidthWrapper>;
 }
