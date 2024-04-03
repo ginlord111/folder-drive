@@ -8,7 +8,6 @@ import {
 // import { roles } from "./schema";
 // import { hasAccessToOrg } from "./files";
 
-
 export async function getUser(
   ctx: QueryCtx | MutationCtx,
   tokenIdentifier: string
