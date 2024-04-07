@@ -4,13 +4,14 @@ import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import Image from "next/image";
+
 const Header = () => {
   return (
     <div className="bg-white sticky z-50 top-0 inset-x-0 h-16 w-full">
-      <header className="relative ">
+      <header className="relative py-4">
         <MaxWidthWrapper>
           <div className="border-b-2 border-gray-200">
-            <div className="flex h-17 items-center">
+            <div className="flex h-17 items-center py-2">
               {/* FOR MOBILE VIEW */}
               <Link className="flex items-center" href={"/"}>
                 <div className="relative pr-2">
