@@ -12,7 +12,7 @@ const Header = () => {
           <div className="border-b-2 border-gray-200">
             <div className="flex h-17 items-center">
               {/* FOR MOBILE VIEW */}
-              <Link className="sflex items-center" href={"/"}>
+              <Link className="flex items-center" href={"/"}>
                 <div className="relative pr-2">
                   <Image
                     src={"/folder-picture-iconn.png"}
