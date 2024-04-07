@@ -24,16 +24,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 const formSchema = z.object({
-  title:z.string().min(5),
-  file: z.string(),
+  title: z.string().min(5),
+  file: z.custom<File | null>((val) => val instanceof File, "Required"),
 });
 const UploadFileCard = () => {
-  const onSubmit = (values: z.infer<typeof formSchema>) => {};
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log(values, "VALUES");
+  };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      file:'',
+      file: null,
     },
   });
   return (
@@ -74,20 +76,26 @@ const UploadFileCard = () => {
                 <FormField
                   control={form.control}
                   name="file"
-                  render={({ field }) => (
+                  render={({ field: { onChange }, ...field }) => (
                     <FormItem>
                       <FormLabel>File</FormLabel>
                       <FormControl>
                         <Input
-                        type="file"
+                          type="file"
                           {...field}
+                          onChange={(e) => {
+                            if (!e.target.files) return;
+                            onChange(e.target.files[0]);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">Submit</Button>
+                <Button type="submit" className="w-full">
+                  Submit
+                </Button>
               </form>
             </Form>
           </div>
