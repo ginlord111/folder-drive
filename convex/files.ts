@@ -67,3 +67,13 @@ export const getFiles = query({
       .collect();
   },
 });
+
+export const generateUploadUrl = mutation(async (ctx) => {
+  const identity = await ctx.auth.getUserIdentity();
+
+  if (!identity) {
+    return;
+  }
+
+  return await ctx.storage.generateUploadUrl();
+});

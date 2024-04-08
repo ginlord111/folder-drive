@@ -23,18 +23,14 @@ import { Input } from "./ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-const formSchema = z.object({
-  title: z.string().min(1),
-  file: z
-    .custom<FileList>((val) => val instanceof FileList, "Required")
-    .refine((files) => files.length > 0, "Required"),
-});
+import { uploadFileSchema } from "@/lib/utils";
 const UploadFileCard = () => {
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const onSubmit = (values: z.infer<typeof uploadFileSchema>) => {
     console.log(values, "VALUES");
   };
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof uploadFileSchema>>({
+    resolver: zodResolver(uploadFileSchema),
     defaultValues: {
       title: "",
     },
