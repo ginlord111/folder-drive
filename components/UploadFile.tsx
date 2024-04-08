@@ -24,8 +24,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 const formSchema = z.object({
-  title: z.string().min(5),
-  file: z.custom<File | null>((val) => val instanceof File, "Required"),
+  title: z.string().min(1),
+  file: z
+    .custom<FileList>((val) => val instanceof FileList, "Required")
+    .refine((files) => files.length > 0, "Required"),
 });
 const UploadFileCard = () => {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -35,9 +37,9 @@ const UploadFileCard = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      file: null,
     },
   });
+  const fileRef = form.register("file");
   return (
     <Dialog>
       <DialogTrigger>
@@ -82,7 +84,7 @@ const UploadFileCard = () => {
                       <FormControl>
                         <Input
                           type="file"
-                          {...field}
+                          {...fileRef}
                           onChange={(e) => {
                             if (!e.target.files) return;
                             onChange(e.target.files[0]);
