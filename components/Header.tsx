@@ -4,7 +4,7 @@ import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import Image from "next/image";
-
+import { SignOutButton } from "@clerk/nextjs";
 const Header = () => {
   return (
     <div className="bg-white sticky z-50 top-0 inset-x-0 h-16 w-full">
@@ -31,6 +31,13 @@ const Header = () => {
                 <div className="hidden lg:flex  lg:space-x-5 ">
                   <Link href="/dashboard/files">
                     <Button>Sign in</Button>
+                  </Link>
+                </div>
+                <div className="hidden lg:flex  lg:space-x-5 ">
+                  <Link href="/">
+                    <SignOutButton>
+                      <Button>Sign Out</Button>
+                    </SignOutButton>
                   </Link>
                 </div>
               </div>

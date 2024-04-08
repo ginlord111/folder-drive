@@ -2,7 +2,9 @@ import React from "react";
 import FileHeader from "../_components/file-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, Rows2 } from "lucide-react";
+import { useState, useEffect } from "react";
 const FilesPage = () => {
+
   return (
     <div className="relative bg-white px-10">
       <FileHeader />

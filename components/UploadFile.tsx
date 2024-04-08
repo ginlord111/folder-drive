@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -18,26 +19,47 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { uploadFileSchema } from "@/lib/utils";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useOrganization, useUser } from "@clerk/nextjs";
 const UploadFileCard = () => {
+  const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  const onSubmit = (values: z.infer<typeof uploadFileSchema>) => {
-    console.log(values, "VALUES");
-  };
+  const createFile = useMutation(api.files.createFile);
+  const org = useOrganization();
+  const user = useUser();
+  const orgId = org.organization?.id ?? user.user?.id;
+
   const form = useForm<z.infer<typeof uploadFileSchema>>({
     resolver: zodResolver(uploadFileSchema),
     defaultValues: {
       title: "",
     },
   });
+  const onSubmit = async (values: z.infer<typeof uploadFileSchema>) => {
+    console.log(values, "VALUES");
+    const postUrl = await generateUploadUrl();
+    if (!orgId || !postUrl) return;
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": values.file[0].type },
+      body: values.file[0],
+    });
+    const { storageId } = await result.json();
+    await createFile({ fileId: storageId, name: values.title, orgId });
+
+    form.reset();
+    setIsOpenFile(false);
+  };
+
   const fileRef = form.register("file");
   return (
-    <Dialog>
+    <Dialog open={isOpenFile} onOpenChange={setIsOpenFile}>
       <DialogTrigger>
         <Button>Upload File</Button>
       </DialogTrigger>
@@ -103,9 +125,13 @@ const UploadFileCard = () => {
   );
 };
 const UploadFile = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
   return (
     <div className="relative flex items-center">
-      <UploadFileCard />
+      {isLoaded && <UploadFileCard />}
     </div>
   );
 };
