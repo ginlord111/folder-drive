@@ -27,14 +27,17 @@ import { uploadFileSchema } from "@/lib/utils";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 const UploadFileCard = () => {
   const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const createFile = useMutation(api.files.createFile);
   const org = useOrganization();
   const user = useUser();
   const orgId = org.organization?.id ?? user.user?.id;
-
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof uploadFileSchema>>({
     resolver: zodResolver(uploadFileSchema),
     defaultValues: {
@@ -42,6 +45,7 @@ const UploadFileCard = () => {
     },
   });
   const onSubmit = async (values: z.infer<typeof uploadFileSchema>) => {
+    setIsLoading(true);
     console.log(values, "VALUES");
     const postUrl = await generateUploadUrl();
     if (!orgId || !postUrl) return;
@@ -52,9 +56,14 @@ const UploadFileCard = () => {
     });
     const { storageId } = await result.json();
     await createFile({ fileId: storageId, name: values.title, orgId });
-
     form.reset();
+    setIsLoading(false);
     setIsOpenFile(false);
+    toast({
+      variant: "success",
+      title: "Upload Successfully",
+      description: "Your file is now stored in File Drive",
+    });
   };
 
   const fileRef = form.register("file");
@@ -113,8 +122,12 @@ const UploadFileCard = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
-                  Submit
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <span>Submit</span>
+                  )}
                 </Button>
               </form>
             </Form>
