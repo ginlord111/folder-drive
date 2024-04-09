@@ -27,11 +27,10 @@ import { uploadFileSchema } from "@/lib/utils";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
-import { Loader2 } from "lucide-react";
+import { Loader2, CircleCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 const UploadFileCard = () => {
   const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const createFile = useMutation(api.files.createFile);
   const org = useOrganization();
@@ -45,7 +44,6 @@ const UploadFileCard = () => {
     },
   });
   const onSubmit = async (values: z.infer<typeof uploadFileSchema>) => {
-    setIsLoading(true);
     console.log(values, "VALUES");
     const postUrl = await generateUploadUrl();
     if (!orgId || !postUrl) return;
@@ -55,15 +53,27 @@ const UploadFileCard = () => {
       body: values.file[0],
     });
     const { storageId } = await result.json();
-    await createFile({ fileId: storageId, name: values.title, orgId });
-    form.reset();
-    setIsLoading(false);
-    setIsOpenFile(false);
-    toast({
-      variant: "success",
-      title: "Upload Successfully",
-      description: "Your file is now stored in File Drive",
-    });
+    try {
+      await createFile({ fileId: storageId, name: values.title, orgId });
+      form.reset();
+      setIsOpenFile(false);
+      toast({
+        variant: "success",
+        //@ts-ignore
+        title: (
+          <div className="flex items-center gap-1">
+            Upload your file successfully <CircleCheck className="w-3 h-3" />
+          </div>
+        ),
+        description: "Your file is now stored in File Drive",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
   };
 
   const fileRef = form.register("file");
@@ -122,8 +132,12 @@ const UploadFileCard = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <span>Submit</span>
