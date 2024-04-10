@@ -29,7 +29,7 @@ import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { Loader2, CircleCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-const UploadFileCard = () => {
+const UploadFileDialog = () => {
   const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const createFile = useMutation(api.files.createFile);
@@ -52,7 +52,8 @@ const UploadFileCard = () => {
       headers: { "Content-Type": values.file[0].type },
       body: values.file[0],
     });
-    const { storageId } = await result.json();
+    const { storageId, contentType} = await result.json();
+    console.log(contentType, "contentType")
     try {
       await createFile({ fileId: storageId, name: values.title, orgId });
       form.reset();
@@ -158,7 +159,7 @@ const UploadFile = () => {
   }, []);
   return (
     <div className="relative flex items-center">
-      {isLoaded && <UploadFileCard />}
+      {isLoaded && <UploadFileDialog />}
     </div>
   );
 };

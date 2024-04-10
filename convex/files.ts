@@ -79,3 +79,30 @@ export const generateUploadUrl = mutation(async (ctx) => {
 
   return await ctx.storage.generateUploadUrl();
 });
+
+export const deleteFile = mutation({
+  args: {
+    fileId: v.id("files"),
+  },
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("You must login first");
+    }
+    const file = await ctx.db.get(args.fileId);
+    if (!file) {
+      throw new Error("File does not exist");
+    }
+    const hasAccess = await hasAccessToOrg(
+      ctx,
+      identity.tokenIdentifier,
+      file?.orgId
+    );
+    if (!hasAccess) {
+      throw new Error("You do not have access to delete this file");
+    }
+
+    await ctx.db.delete(file._id);
+  },
+});
