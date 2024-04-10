@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -31,9 +32,11 @@ import { api } from "@/convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
   const { toast } = useToast();
+  const [isOpenDialog, sestIsOpenDialog] = useState(false);
   const deleteFile = useMutation(api.files.deleteFile);
   const deleteFileBtn = async () => {
     await deleteFile({ fileId: file._id });
+    sestIsOpenDialog(false);
     toast({
       variant: "success",
       title: "Successfully Deleted",
@@ -42,7 +45,7 @@ const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
   };
   return (
     <>
-      <AlertDialog>
+      <AlertDialog open={isOpenDialog} onOpenChange={sestIsOpenDialog}>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <EllipsisVertical className="w-7 h-7" />

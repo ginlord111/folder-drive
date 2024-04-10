@@ -9,6 +9,7 @@ import FileCard from "@/components/FileCard";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
+import Image from "next/image";
 const FilesPage = () => {
   let orgId;
   const org = useOrganization();
@@ -29,11 +30,25 @@ const FilesPage = () => {
       <div className="relative mt-10">
         <GridTableTabs />
       </div>
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-10">
-        {files?.map((file) => (
-          <FileCard key={file._id} file={file} />
-        ))}
-      </div>
+      {!files || files?.length > 0 ? (
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-10">
+          {files?.map((file) => (
+            <FileCard key={file._id} file={file} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center relative justify-center w-full mt-32 gap-5">
+          <Image
+            width="300"
+            height="300"
+            src="/no-data-picture.svg"
+            alt="No Data files"
+          />
+          <div className="text-muted-foreground text-lg text-center">
+            <h3>No files available</h3>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
