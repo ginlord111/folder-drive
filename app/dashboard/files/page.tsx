@@ -2,7 +2,6 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, Rows2 } from "lucide-react";
-import { useState, useEffect } from "react";
 import UploadFile from "@/components/UploadFile";
 import SearchFile from "@/components/SearchFile";
 import FileCard from "@/components/FileCard";
@@ -10,6 +9,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import Image from "next/image";
+import SkeletonFile from "@/components/SkeletonFile";
 const FilesPage = () => {
   let orgId;
   const org = useOrganization();
@@ -30,13 +30,14 @@ const FilesPage = () => {
       <div className="relative mt-10">
         <GridTableTabs />
       </div>
+      {files === undefined && <SkeletonFile />}
       {!files || files?.length > 0 ? (
         <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-10">
           {files?.map((file) => (
             <FileCard key={file._id} file={file} />
           ))}
         </div>
-      ) : (
+      ) :(
         <div className="flex flex-col items-center relative justify-center w-full mt-32 gap-5">
           <Image
             width="300"
