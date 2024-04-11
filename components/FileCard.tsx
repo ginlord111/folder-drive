@@ -86,10 +86,10 @@ const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
 };
 const FileCard = ({ file }: { file: Doc<"files"> }) => {
   return (
-    <div className="relative mt-20">
-      <Card className="p-5">
-        <CardHeader>
-          <CardTitle className="flex justify-between items-center text-xl">
+    <div className="relative mt-20 ">
+      <Card className="p-5 shrink max-w-2xl">
+        <CardHeader className="max-w-2xl">
+          <CardTitle className="flex justify-between items-center text-xl ">
             <span>{file.name}</span> <DropDownFile file={file} />
           </CardTitle>
           <CardDescription>Card Description</CardDescription>
