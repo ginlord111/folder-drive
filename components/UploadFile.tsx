@@ -29,8 +29,10 @@ import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { Loader2, CircleCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { fileTypes } from "@/lib/utils";
 const UploadFileDialog = () => {
   const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
+  const [isFileType, setIsFileType] = useState<string | undefined | false>();
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const createFile = useMutation(api.files.createFile);
   const org = useOrganization();
@@ -45,6 +47,7 @@ const UploadFileDialog = () => {
   });
   const onSubmit = async (values: z.infer<typeof uploadFileSchema>) => {
     console.log(values, "VALUES");
+
     const postUrl = await generateUploadUrl();
     if (!orgId || !postUrl) return;
     const result = await fetch(postUrl, {
@@ -52,10 +55,15 @@ const UploadFileDialog = () => {
       headers: { "Content-Type": values.file[0].type },
       body: values.file[0],
     });
-    const { storageId, contentType} = await result.json();
-    console.log(contentType, "contentType")
+    console.log(values.file[0].type, "TYPE");
+    const { storageId } = await result.json();
     try {
-      await createFile({ fileId: storageId, name: values.title, orgId });
+      await createFile({
+        fileId: storageId,
+        name: values.title,
+        orgId,
+        type: fileTypes[values.file[0].type],
+      });
       form.reset();
       setIsOpenFile(false);
       toast({

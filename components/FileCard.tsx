@@ -25,7 +25,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FolderHeart, Trash, File, EllipsisVertical } from "lucide-react";
+import {
+  FolderHeart,
+  Trash,
+  File,
+  EllipsisVertical,
+  FileImage,
+  FileText,
+  Folder,
+} from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -85,12 +93,22 @@ const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
   );
 };
 const FileCard = ({ file }: { file: Doc<"files"> }) => {
+  const fileIcon = () => {
+    switch (file.type) {
+      case "image":
+        return <FileImage />;
+      case "pdf":
+        return <FileText />;
+      default:
+        <File />;
+    }
+  };
   return (
     <div className="relative mt-20 ">
-      <Card className="p-5 shrink max-w-2xl">
+      <Card className="lg:p-5 md:p-3 sm:p-2 shrink max-w-2xl">
         <CardHeader className="max-w-2xl">
-          <CardTitle className="flex justify-between items-center text-xl ">
-            <span>{file.name}</span> <DropDownFile file={file} />
+          <CardTitle className="flex justify-between items-center lg:text-xl sm:text-sm text-sm md:text-md lg:break-normal md:break-all">
+           <div className="flex items-center gap-2">{<span>{fileIcon()}</span>}<span>{file.name}</span></div> <DropDownFile file={file} />
           </CardTitle>
           <CardDescription>Card Description</CardDescription>
         </CardHeader>

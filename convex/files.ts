@@ -14,12 +14,13 @@ export const hasAccessToOrg = async (
 
   return hasAccess;
 };
-
+const typeFile = v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"));
 export const createFile = mutation({
   args: {
     fileId: v.id("_storage"),
     name: v.string(),
     orgId: v.string(),
+    type:typeFile,
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -40,6 +41,7 @@ export const createFile = mutation({
       fileId: args.fileId,
       name: args.name,
       orgId: args.orgId,
+      type: args.type,
     });
   },
 });
