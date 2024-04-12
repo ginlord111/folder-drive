@@ -32,7 +32,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { fileTypes } from "@/lib/utils";
 const UploadFileDialog = () => {
   const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
-  const [isFileType, setIsFileType] = useState<string | undefined | false>();
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const createFile = useMutation(api.files.createFile);
   const org = useOrganization();

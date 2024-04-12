@@ -35,9 +35,10 @@ import {
   Folder,
 } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "./ui/use-toast";
+import Image from "next/image";
 const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
   const { toast } = useToast();
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
@@ -93,6 +94,7 @@ const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
   );
 };
 const FileCard = ({ file }: { file: Doc<"files"> }) => {
+  const imageUrl = useQuery(api.files.getImage, { fileId: file.fileId });
   const fileIcon = () => {
     switch (file.type) {
       case "image":
@@ -104,22 +106,31 @@ const FileCard = ({ file }: { file: Doc<"files"> }) => {
     }
   };
   return (
-    <div className="relative mt-20 ">
-      <Card className="lg:p-5 md:p-3 sm:p-2 shrink max-w-2xl">
-        <CardHeader className="max-w-2xl">
+      <Card className="max-w-[350px] mt-20 overflow-hidden">
+        <CardHeader className="max-w-2xl flex">
           <CardTitle className="flex justify-between items-center lg:text-xl sm:text-sm text-sm md:text-md lg:break-normal md:break-all">
-           <div className="flex items-center gap-2">{<span>{fileIcon()}</span>}<span>{file.name}</span></div> <DropDownFile file={file} />
+            <div className="flex items-center gap-2">
+              {<span>{fileIcon()}</span>}
+              <span>{file.name}</span>
+            </div>
+            <DropDownFile file={file} />
           </CardTitle>
-          <CardDescription>Card Description</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>Card Content</p>
-        </CardContent>
+          </CardHeader>
+          <CardContent className="flex items-center relative overflow-viisble">
+            {
+              <Image
+                alt="File Image"
+                width={300}
+                height={300}
+                src={imageUrl?.url as string}
+                className="p-5 object-cover rounded-xl"
+              />
+            }
+          </CardContent>
         <CardFooter>
           <p>Card Footer</p>
         </CardFooter>
       </Card>
-    </div>
   );
 };
 

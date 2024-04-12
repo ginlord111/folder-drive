@@ -1,5 +1,7 @@
-import { Doc } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { type ClassValue, clsx } from "clsx";
+import { useQuery } from "convex/react";
 import { twMerge } from "tailwind-merge";
 import { z } from "zod";
 export function cn(...inputs: ClassValue[]) {
@@ -17,3 +19,8 @@ export const fileTypes = {
   "application/pdf": "pdf",
   "text/csv": "csv",
 } as Record<string, Doc<"files">["type"]>;
+
+// export const getFileUrl = (fileId: Id<"_storage">):string => {
+//   const imageUrl = useQuery(api.files.getImage, {fileId:fileId})
+//   return {imageUrl}
+// };

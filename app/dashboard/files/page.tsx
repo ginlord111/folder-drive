@@ -32,7 +32,7 @@ const FilesPage = () => {
       </div>
       {files === undefined && <SkeletonFile />}
       {!files || files?.length > 0 ? (
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-10">
+        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5">
           {files?.map((file) => (
             <FileCard key={file._id} file={file} />
           ))}

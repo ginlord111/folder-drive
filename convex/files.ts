@@ -14,13 +14,17 @@ export const hasAccessToOrg = async (
 
   return hasAccess;
 };
-const typeFile = v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"));
+const typeFile = v.union(
+  v.literal("image"),
+  v.literal("csv"),
+  v.literal("pdf")
+);
 export const createFile = mutation({
   args: {
     fileId: v.id("_storage"),
     name: v.string(),
     orgId: v.string(),
-    type:typeFile,
+    type: typeFile,
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -106,5 +110,20 @@ export const deleteFile = mutation({
     }
 
     await ctx.db.delete(file._id);
+  },
+});
+
+export const getImage= query({
+  args: {
+    fileId: v.id("_storage"),
+  },
+  async handler(ctx, args) {
+    const file = await ctx.db
+      .query("files")
+      .withIndex("by_fileId", (q) => q.eq("fileId", args.fileId))
+      .first();
+    if (file?.type === "image") {
+      return {url:await ctx.storage.getUrl(file.fileId)}
+    }
   },
 });
