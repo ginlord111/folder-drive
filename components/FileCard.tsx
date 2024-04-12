@@ -39,7 +39,13 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
-const DropDownFile = ({ file, fileUrl }: { file: Doc<"files">, fileUrl:string |null | undefined}) => {
+const DropDownFile = ({
+  file,
+  fileUrl,
+}: {
+  file: Doc<"files">;
+  fileUrl: string | null | undefined;
+}) => {
   const { toast } = useToast();
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
   const deleteFile = useMutation(api.files.deleteFile);

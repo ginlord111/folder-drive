@@ -13,6 +13,10 @@ export const uploadFileSchema = z.object({
     .custom<FileList>((val) => val instanceof FileList, "Required")
     .refine((files) => files.length > 0, "Required"),
 });
+export const fileSearchSchema = z.object({
+  query: z.string().min(0).max(100),
+});
+
 export const fileTypes = {
   "image/png": "image",
   "image/jpeg": "image",

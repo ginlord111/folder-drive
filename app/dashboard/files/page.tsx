@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, Rows2 } from "lucide-react";
 import UploadFile from "@/components/UploadFile";
@@ -11,20 +11,21 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import SkeletonFile from "@/components/SkeletonFile";
 const FilesPage = () => {
+  const [searchQuery, setSearchQuery] = useState("")
   let orgId;
   const org = useOrganization();
   const user = useUser();
   if (org.isLoaded && user.isLoaded) {
     orgId = org.organization?.id ?? user.user?.id;
   }
-  const files = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
+  const files = useQuery(api.files.getFiles, orgId ? { orgId, query:searchQuery } : "skip");
   return (
     <div className="relative bg-white px-10 overflow-hidden">
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between  py-2">
         <div className="md:text-4xl text-xl font-bold tracking-tight whitespace-nowrap">
           <h1>Your Files</h1>
         </div>
-        <SearchFile />
+        <SearchFile setSearchQuery={setSearchQuery}/>
         <UploadFile />
       </div>
       <div className="relative mt-10">
