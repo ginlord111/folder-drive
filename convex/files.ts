@@ -113,7 +113,7 @@ export const deleteFile = mutation({
   },
 });
 
-export const getImage= query({
+export const getImage = query({
   args: {
     fileId: v.id("_storage"),
   },
@@ -121,9 +121,11 @@ export const getImage= query({
     const file = await ctx.db
       .query("files")
       .withIndex("by_fileId", (q) => q.eq("fileId", args.fileId))
-      .first();
-    if (file?.type === "image") {
-      return {url:await ctx.storage.getUrl(file.fileId)}
-    }
+      .first()
+      if(!file){
+       throw new Error("No files Image available");
+      }
+      return { url: await ctx.storage.getUrl(file.fileId) };
+    
   },
 });

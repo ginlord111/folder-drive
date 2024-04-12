@@ -39,7 +39,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
-const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
+const DropDownFile = ({ file, fileUrl }: { file: Doc<"files">, fileUrl:string |null | undefined}) => {
   const { toast } = useToast();
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
   const deleteFile = useMutation(api.files.deleteFile);
@@ -60,7 +60,10 @@ const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
             <EllipsisVertical className="w-7 h-7" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="p-5 flex flex-col gap-3">
-            <DropdownMenuItem className="flex gap-3">
+            <DropdownMenuItem
+              className="flex gap-3"
+              onClick={() => window.open(fileUrl as string, "_blank")}
+            >
               <File className="text-blue-500" /> Download
             </DropdownMenuItem>
             <DropdownMenuItem className="flex gap-3">
@@ -94,7 +97,8 @@ const DropDownFile = ({ file }: { file: Doc<"files"> }) => {
   );
 };
 const FileCard = ({ file }: { file: Doc<"files"> }) => {
-  const imageUrl = useQuery(api.files.getImage, { fileId: file.fileId });
+  const fileUrl = useQuery(api.files.getImage, { fileId: file.fileId });
+
   const fileIcon = () => {
     switch (file.type) {
       case "image":
@@ -106,31 +110,33 @@ const FileCard = ({ file }: { file: Doc<"files"> }) => {
     }
   };
   return (
-      <Card className="max-w-[350px] mt-20 overflow-hidden">
-        <CardHeader className="max-w-2xl flex">
-          <CardTitle className="flex justify-between items-center lg:text-xl sm:text-sm text-sm md:text-md lg:break-normal md:break-all">
-            <div className="flex items-center gap-2">
-              {<span>{fileIcon()}</span>}
-              <span>{file.name}</span>
-            </div>
-            <DropDownFile file={file} />
-          </CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center relative overflow-viisble">
-            {
-              <Image
-                alt="File Image"
-                width={300}
-                height={300}
-                src={imageUrl?.url as string}
-                className="p-5 object-cover rounded-xl"
-              />
-            }
-          </CardContent>
-        <CardFooter>
-          <p>Card Footer</p>
-        </CardFooter>
-      </Card>
+    <Card className="max-w-[350px] mt-20 overflow-hidden">
+      <CardHeader className="max-w-2xl flex">
+        <CardTitle className="flex justify-between items-center lg:text-xl sm:text-sm text-sm md:text-md lg:break-normal md:break-all">
+          <div className="flex items-center gap-2">
+            {<span>{fileIcon()}</span>}
+            <span>{file.name}</span>
+          </div>
+          <DropDownFile file={file} fileUrl={fileUrl?.url} />
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex items-center justify-center relative overflow-viisble">
+        {file.type === "image" ? (
+          <Image
+            alt="File Image"
+            width={300}
+            height={300}
+            src={fileUrl?.url as string}
+            className="p-5 object-cover rounded-xl"
+          />
+        ) : (
+          <File className="w-[250px] h-[150px]" />
+        )}
+      </CardContent>
+      <CardFooter>
+        <p>Card Footer</p>
+      </CardFooter>
+    </Card>
   );
 };
 

@@ -6,8 +6,10 @@ export default defineSchema({
     fileId: v.id("_storage"),
     name: v.string(),
     orgId: v.string(),
-    type:v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"))
-  }).index("by_orgId", ["orgId"]).index("by_fileId", ["fileId"]),
+    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf")),
+  })
+    .index("by_orgId", ["orgId"])
+    .index("by_fileId", ["fileId"]),
   users: defineTable({
     tokenIdentifier: v.string(),
     orgIds: v.array(v.string()),

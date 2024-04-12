@@ -19,7 +19,7 @@ const FilesPage = () => {
   }
   const files = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
   return (
-    <div className="relative bg-white px-10">
+    <div className="relative bg-white px-10 overflow-hidden">
       <div className="flex items-center justify-between ">
         <div className="md:text-4xl text-xl font-bold tracking-tight whitespace-nowrap">
           <h1>Your Files</h1>
@@ -37,7 +37,7 @@ const FilesPage = () => {
             <FileCard key={file._id} file={file} />
           ))}
         </div>
-      ) :(
+      ) : (
         <div className="flex flex-col items-center relative justify-center w-full mt-32 gap-5">
           <Image
             width="300"
