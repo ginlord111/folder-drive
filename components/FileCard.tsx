@@ -39,13 +39,15 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 const DropDownFile = ({
   file,
   fileUrl,
 }: {
-  file: Doc<"files">;
+  file: Doc<"files" | "favorites">;
   fileUrl: string | null | undefined;
 }) => {
+  const favFile = useMutation(api.files.createFavoriteFile);
   const { toast } = useToast();
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
   const deleteFile = useMutation(api.files.deleteFile);
@@ -72,7 +74,10 @@ const DropDownFile = ({
             >
               <File className="text-blue-500" /> Download
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex gap-3">
+            <DropdownMenuItem
+              className="flex gap-3"
+              onClick={() => favFile({ file_id: file._id })}
+            >
               <FolderHeart className="text-yellow-500" /> Favorite
             </DropdownMenuItem>
             <DropdownMenuItem>
@@ -102,10 +107,11 @@ const DropDownFile = ({
     </>
   );
 };
-const FileCard = ({ file }: { file: Doc<"files"> }) => {
+const FileCard = ({ file, orgId }: { file: Doc<"files" | "favorites">; orgId: string }) => {
   const fileUrl = useQuery(api.files.getImage, { fileId: file.fileId });
-
-  const fileIcon = () => {
+  const favoriteFiles = useQuery(api.files.getFavoriteFiles, { orgId });
+  const deleteFavFile = useMutation(api.files.deleteFavFile);
+    const fileIcon = () => {
     switch (file.type) {
       case "image":
         return <FileImage />;
@@ -115,6 +121,7 @@ const FileCard = ({ file }: { file: Doc<"files"> }) => {
         <File />;
     }
   };
+
   return (
     <Card className="max-w-[350px] mt-20 overflow-hidden">
       <CardHeader className="max-w-2xl flex">
@@ -130,17 +137,29 @@ const FileCard = ({ file }: { file: Doc<"files"> }) => {
         {file.type === "image" ? (
           <Image
             alt="File Image"
-            width={300}
-            height={300}
+            width="250"
+            height="150"
             src={fileUrl?.url as string}
             className="p-5 object-cover rounded-xl"
           />
         ) : (
-          <File className="w-[250px] h-[150px]" />
+          <File className="w-[250px] h-[160px]" />
         )}
       </CardContent>
       <CardFooter>
-        <p>Card Footer</p>
+        <div className="ml-auto">
+          {favoriteFiles?.map(
+            (favFile) =>
+              favFile.fileId === file.fileId && (
+                <FolderHeart
+                  className="text-yellow-500 animate-jump-in animate-once"
+                  onClick={() => {
+                    deleteFavFile({ fileId: favFile._id });
+                  }}
+                />
+              )
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

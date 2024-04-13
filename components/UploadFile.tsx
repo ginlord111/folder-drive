@@ -54,7 +54,6 @@ const UploadFileDialog = () => {
       headers: { "Content-Type": values.file[0].type },
       body: values.file[0],
     });
-    console.log(values.file[0].type, "TYPE");
     const { storageId } = await result.json();
     try {
       await createFile({

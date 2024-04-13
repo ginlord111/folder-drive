@@ -14,4 +14,11 @@ export default defineSchema({
     tokenIdentifier: v.string(),
     orgIds: v.array(v.string()),
   }).index("by_tokenIdentifier", ["tokenIdentifier"]),
+  favorites: defineTable({
+    fileId: v.id("_storage"),
+    name: v.string(),
+    orgId: v.string(),
+    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf")),
+    userId:v.id("users")
+  }).index("by_orgId", ["orgId"]),
 });

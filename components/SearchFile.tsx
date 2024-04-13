@@ -41,7 +41,7 @@ const SearchFile = ({ setSearchQuery }: { setSearchQuery: Dispatch<SetStateActio
               </FormItem>
             )}
           />
-          <Button variant="default" type="submit" className="flex gap-1">
+          <Button variant="default" type="submit" className="flex gap-1" size="sm">
             <FileSearch className="mr-2 shrink" />
             Search
           </Button>
