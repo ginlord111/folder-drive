@@ -45,7 +45,7 @@ const UploadFileDialog = () => {
     },
   });
   const onSubmit = async (values: z.infer<typeof uploadFileSchema>) => {
-    console.log(values, "VALUES");
+    console.log(values.file[0].type, "VALUES");
 
     const postUrl = await generateUploadUrl();
     if (!orgId || !postUrl) return;

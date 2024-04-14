@@ -1,7 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { MutationCtx, QueryCtx, mutation, query } from "./_generated/server";
 import { getUser } from "./users";
-import { useQuery } from "convex/react";
 export const hasAccessToOrg = async (
   ctx: QueryCtx | MutationCtx,
   tokenIdentifier: string,
@@ -17,7 +16,8 @@ export const hasAccessToOrg = async (
 const typeFile = v.union(
   v.literal("image"),
   v.literal("csv"),
-  v.literal("pdf")
+  v.literal("pdf"),
+  v.literal("video")
 );
 export const createFile = mutation({
   args: {

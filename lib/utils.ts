@@ -22,6 +22,7 @@ export const fileTypes = {
   "image/jpeg": "image",
   "application/pdf": "pdf",
   "text/csv": "csv",
+  "video/mp4": "video",
 } as Record<string, Doc<"files">["type"]>;
 
 // export const getFileUrl = (fileId: Id<"_storage">):string => {

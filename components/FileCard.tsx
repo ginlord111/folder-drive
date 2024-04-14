@@ -33,6 +33,8 @@ import {
   FileImage,
   FileText,
   Folder,
+  Video,
+  FileVideo,
 } from "lucide-react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
@@ -54,7 +56,6 @@ const DropDownFile = ({
   const deleteFile = useMutation(api.files.deleteFile);
   const favFile = useMutation(api.files.createFavoriteFile);
   const favFileBtn = async (fileId: Id<"files" | "favorites">) => {
-
     try {
       await favFile({ file_id: fileId, orgId });
     } catch (error) {
@@ -137,6 +138,7 @@ const FileCard = ({
         return <FileImage />;
       case "pdf":
         return <FileText />;
+        case "video": return <FileVideo />
       default:
         <File />;
     }
@@ -162,6 +164,8 @@ const FileCard = ({
             src={fileUrl?.url as string}
             className="p-5 object-cover rounded-xl"
           />
+        ) : file.type === "video" ? (
+          <Video className="w-[250px] h-[160px]" />
         ) : (
           <File className="w-[250px] h-[160px]" />
         )}

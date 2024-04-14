@@ -8,7 +8,6 @@ import FileCard from "@/components/FileCard";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
-import Image from "next/image";
 import SkeletonFile from "@/components/SkeletonFile";
 import NoFilesAvail from "@/components/NoFilesAvail";
 const FilesPage = () => {

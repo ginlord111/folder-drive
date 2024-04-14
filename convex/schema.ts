@@ -6,7 +6,7 @@ export default defineSchema({
     fileId: v.id("_storage"),
     name: v.string(),
     orgId: v.string(),
-    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf")),
+    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"), v.literal("video")),
   })
     .index("by_orgId", ["orgId"])
     .index("by_fileId", ["fileId"]),
@@ -18,7 +18,7 @@ export default defineSchema({
     fileId: v.id("_storage"),
     name: v.string(),
     orgId: v.string(),
-    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf")),
+    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"), v.literal("video")),
     userId:v.id("users")
   }).index("by_orgId", ["orgId"]).index("by_fileId", ["fileId"]),
 });
