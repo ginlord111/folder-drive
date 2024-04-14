@@ -96,7 +96,7 @@ export const generateUploadUrl = mutation(async (ctx) => {
 });
 export const deleteFile = mutation({
   args: {
-    fileId:v.union(v.id("files"), v.id("favorites")),
+    fileId: v.union(v.id("files"), v.id("favorites")),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -139,7 +139,8 @@ export const getImage = query({
 
 export const createFavoriteFile = mutation({
   args: {
-    file_id:v.union(v.id("files"), v.id("favorites")),
+    file_id: v.union(v.id("files"), v.id("favorites")),
+    orgId: v.string(),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -167,6 +168,13 @@ export const createFavoriteFile = mutation({
       .first();
     if (!user) {
       return;
+    }
+    const favFile = await ctx.db
+      .query("favorites")
+      .withIndex("by_fileId", (q) => q.eq("fileId", file.fileId))
+      .first();
+    if (favFile) {
+      throw new Error("Already in your favorites");
     }
 
     await ctx.db.insert("favorites", {

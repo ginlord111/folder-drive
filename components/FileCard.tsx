@@ -34,23 +34,37 @@ import {
   FileText,
   Folder,
 } from "lucide-react";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { Toast } from "./ui/toast";
 const DropDownFile = ({
   file,
   fileUrl,
+  orgId,
 }: {
   file: Doc<"files" | "favorites">;
   fileUrl: string | null | undefined;
+  orgId: string;
 }) => {
-  const favFile = useMutation(api.files.createFavoriteFile);
   const { toast } = useToast();
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
   const deleteFile = useMutation(api.files.deleteFile);
+  const favFile = useMutation(api.files.createFavoriteFile);
+  const favFileBtn = async (fileId: Id<"files" | "favorites">) => {
+
+    try {
+      await favFile({ file_id: fileId, orgId });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "File is already in your favorites",
+      });
+    }
+  };
   const deleteFileBtn = async () => {
     await deleteFile({ fileId: file._id });
     sestIsOpenDialog(false);
@@ -76,7 +90,7 @@ const DropDownFile = ({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="flex gap-3"
-              onClick={() => favFile({ file_id: file._id })}
+              onClick={() => favFileBtn(file._id)}
             >
               <FolderHeart className="text-yellow-500" /> Favorite
             </DropdownMenuItem>
@@ -107,11 +121,17 @@ const DropDownFile = ({
     </>
   );
 };
-const FileCard = ({ file, orgId }: { file: Doc<"files" | "favorites">; orgId: string }) => {
+const FileCard = ({
+  file,
+  orgId,
+}: {
+  file: Doc<"files" | "favorites">;
+  orgId: string;
+}) => {
   const fileUrl = useQuery(api.files.getImage, { fileId: file.fileId });
   const favoriteFiles = useQuery(api.files.getFavoriteFiles, { orgId });
   const deleteFavFile = useMutation(api.files.deleteFavFile);
-    const fileIcon = () => {
+  const fileIcon = () => {
     switch (file.type) {
       case "image":
         return <FileImage />;
@@ -130,7 +150,7 @@ const FileCard = ({ file, orgId }: { file: Doc<"files" | "favorites">; orgId: st
             {<span>{fileIcon()}</span>}
             <span>{file.name}</span>
           </div>
-          <DropDownFile file={file} fileUrl={fileUrl?.url} />
+          <DropDownFile file={file} fileUrl={fileUrl?.url} orgId={orgId} />
         </CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-center relative overflow-viisble">

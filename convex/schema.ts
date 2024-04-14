@@ -20,5 +20,5 @@ export default defineSchema({
     orgId: v.string(),
     type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf")),
     userId:v.id("users")
-  }).index("by_orgId", ["orgId"]),
+  }).index("by_orgId", ["orgId"]).index("by_fileId", ["fileId"]),
 });
