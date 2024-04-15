@@ -85,11 +85,11 @@ const UploadFileDialog = () => {
 
   const fileRef = form.register("file");
   return (
-    <Dialog open={isOpenFile} onOpenChange={setIsOpenFile}>
+    <Dialog open={isOpenFile} onOpenChange={setIsOpenFile} >
       <DialogTrigger>
-        <Button>Upload File</Button>
+        <Button size="sm">Upload File</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-[350px] md:w-[450px]">
         <DialogHeader>
           <DialogTitle className="pb-5">Upload your file here</DialogTitle>
           <DialogDescription>

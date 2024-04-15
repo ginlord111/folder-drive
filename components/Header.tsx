@@ -1,14 +1,14 @@
 import React from "react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton, currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import Image from "next/image";
-import { SignOutButton } from "@clerk/nextjs";
-const Header = () => {
+const Header = async () => {
+  const user = await currentUser();
   return (
     <div className="bg-white sticky z-50 top-0 inset-x-0 h-16 w-full">
-      <header className="relative py-4">
+      <header className="relative py-6">
         <MaxWidthWrapper>
           <div className="border-b-2 border-gray-200">
             <div className="flex h-17 items-center py-2">
@@ -29,16 +29,16 @@ const Header = () => {
               </Link>
               <div className="ml-auto flex ">
                 <div className="hidden lg:flex  lg:space-x-5 ">
-                  <Link href="/dashboard/files">
-                    <Button>Sign in</Button>
-                  </Link>
-                </div>
-                <div className="hidden lg:flex  lg:space-x-5 ">
-                  <Link href="/">
-                    <SignOutButton>
-                      <Button>Sign Out</Button>
-                    </SignOutButton>
-                  </Link>
+                  {user === null || !user ? (
+                    <Link href="/dashboard/files">
+                      <Button>Sign in</Button>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-8 flex-row-reverse justify-center">
+                        <UserButton />
+                        <OrganizationSwitcher />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

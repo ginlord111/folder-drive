@@ -27,13 +27,13 @@ export async function getUser(
 }
 
 export const createUser = internalMutation({
-  args: { tokenIdentifier: v.string() },
+  args: { tokenIdentifier: v.string(), name: v.string(), image: v.string() },
   async handler(ctx, args) {
     await ctx.db.insert("users", {
       tokenIdentifier: args.tokenIdentifier,
       orgIds: [],
-      // name: args.name,
-      // image: args.image,
+      name: args.name,
+      image: args.image,
     });
   },
 });
@@ -107,17 +107,23 @@ export const addOrgIdToUser = internalMutation({
 //   },
 // });
 
-// export const getUserProfile = query({
-//   args: { userId: v.id("users") },
-//   async handler(ctx, args) {
-//     const user = await ctx.db.get(args.userId);
+export const getUserProfile = query({
+  // args: { userId: v.id("users") },
+  args: {},
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    // const user = await ctx.db.get(args.userId);
+    if (!identity?.tokenIdentifier) {
+      throw new Error("No user detect");
+    }
+    const user = await getUser(ctx, identity?.tokenIdentifier);
 
-//     return {
-//       name: user?.name,
-//       image: user?.image,
-//     };
-//   },
-// });
+    return {
+      name: user?.name,
+      image: user?.image,
+    };
+  },
+});
 
 // export const getMe = query({
 //   args: {},

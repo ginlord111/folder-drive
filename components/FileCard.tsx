@@ -1,127 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   FolderHeart,
-  Trash,
   File,
-  EllipsisVertical,
   FileImage,
   FileText,
-  Folder,
   Video,
   FileVideo,
 } from "lucide-react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useToast } from "./ui/use-toast";
 import Image from "next/image";
-import { Toast } from "./ui/toast";
-const DropDownFile = ({
-  file,
-  fileUrl,
-  orgId,
-}: {
-  file: Doc<"files" | "favorites">;
-  fileUrl: string | null | undefined;
-  orgId: string;
-}) => {
-  const { toast } = useToast();
-  const [isOpenDialog, sestIsOpenDialog] = useState(false);
-  const deleteFile = useMutation(api.files.deleteFile);
-  const favFile = useMutation(api.files.createFavoriteFile);
-  const favFileBtn = async (fileId: Id<"files" | "favorites">) => {
-    try {
-      await favFile({ file_id: fileId, orgId });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "File is already in your favorites",
-      });
-    }
-  };
-  const deleteFileBtn = async () => {
-    await deleteFile({ fileId: file._id });
-    sestIsOpenDialog(false);
-    toast({
-      variant: "success",
-      title: "Successfully Deleted",
-      description: "File has been successfully deleted",
-    });
-  };
-  return (
-    <>
-      <AlertDialog open={isOpenDialog} onOpenChange={sestIsOpenDialog}>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <EllipsisVertical className="w-7 h-7" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="p-5 flex flex-col gap-3">
-            <DropdownMenuItem
-              className="flex gap-3"
-              onClick={() => window.open(fileUrl as string, "_blank")}
-            >
-              <File className="text-blue-500" /> Download
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex gap-3"
-              onClick={() => favFileBtn(file._id)}
-            >
-              <FolderHeart className="text-yellow-500" /> Favorite
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <AlertDialogTrigger className="flex gap-3">
-                <Trash className="text-red-500" /> Delete
-              </AlertDialogTrigger>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              file and remove your data from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500" onClick={deleteFileBtn}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
-};
+import { Avatar } from "@radix-ui/react-avatar";
+import { AvatarFallback, AvatarImage } from "./ui/avatar";
+import { formatRelative } from "date-fns";
+import DropDownFile from "./DropDownFile";
 const FileCard = ({
   file,
   orgId,
@@ -132,20 +33,23 @@ const FileCard = ({
   const fileUrl = useQuery(api.files.getImage, { fileId: file.fileId });
   const favoriteFiles = useQuery(api.files.getFavoriteFiles, { orgId });
   const deleteFavFile = useMutation(api.files.deleteFavFile);
+  const user = useQuery(api.users.getUserProfile);
+  console.log(user, 'THIS IS USER')
   const fileIcon = () => {
     switch (file.type) {
       case "image":
         return <FileImage />;
       case "pdf":
         return <FileText />;
-        case "video": return <FileVideo />
+      case "video":
+        return <FileVideo />;
       default:
         <File />;
     }
   };
 
   return (
-    <Card className="max-w-[350px] mt-20 overflow-hidden">
+    <Card className="lg:max-w-[350px] max-w-[250px]   mt-20 overflow-hidden ">
       <CardHeader className="max-w-2xl flex">
         <CardTitle className="flex justify-between items-center lg:text-xl sm:text-sm text-sm md:text-md lg:break-normal md:break-all">
           <div className="flex items-center gap-2">
@@ -155,7 +59,10 @@ const FileCard = ({
           <DropDownFile file={file} fileUrl={fileUrl?.url} orgId={orgId} />
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex items-center justify-center relative overflow-viisble">
+      <CardContent
+        className="flex items-center justify-center relative overflow-viisble"
+        onClick={() => window.open(fileUrl?.url as string, "_blank")}
+      >
         {file.type === "image" ? (
           <Image
             alt="File Image"
@@ -170,8 +77,8 @@ const FileCard = ({
           <File className="w-[250px] h-[160px]" />
         )}
       </CardContent>
-      <CardFooter>
-        <div className="ml-auto">
+      <CardFooter className="flex justify-between items-center flex-row-reverse ">
+        <div>
           {favoriteFiles?.map(
             (favFile) =>
               favFile.fileId === file.fileId && (
@@ -183,6 +90,18 @@ const FileCard = ({
                 />
               )
           )}
+        </div>
+        <div className="flex items-center gap-4 overflow-auto">
+          <Avatar>
+            <AvatarImage src={user?.image} alt="@shadcn"  className="w-16 lg:w-8  rounded-full"  />
+            <AvatarFallback>AVATAR</AvatarFallback>
+          </Avatar>
+          <div className="text-sm  text-muted-foreground flex justify-start items-start tracking-tighter max-w-[120px]">
+              {user?.name}
+          </div>
+          <div className="text-sm text-muted-foreground tracking-tighter max-w-[120px] text-center">
+          Uploaded on {formatRelative(new Date(file._creationTime), new Date())}
+          </div>
         </div>
       </CardFooter>
     </Card>

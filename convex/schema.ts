@@ -13,6 +13,8 @@ export default defineSchema({
   users: defineTable({
     tokenIdentifier: v.string(),
     orgIds: v.array(v.string()),
+    name:v.string(),
+    image:v.string(),
   }).index("by_tokenIdentifier", ["tokenIdentifier"]),
   favorites: defineTable({
     fileId: v.id("_storage"),

@@ -36,6 +36,7 @@ const FilesPage = () => {
         <GridTableTabs />
       </div>
       <div className="text-lg text-muted-foreground relative flex mt-10"></div>
+      <div className="flex flex-col lg:items-start items-center"> 
       {files === undefined && <SkeletonFile />}
       {!files || files?.length > 0 ? (
         <>
@@ -51,6 +52,7 @@ const FilesPage = () => {
       ) : (
         <NoFilesAvail />
       )}
+      </div>
     </div>
   );
 };

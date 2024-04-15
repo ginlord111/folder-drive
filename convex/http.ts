@@ -2,7 +2,7 @@ import { httpRouter } from "convex/server";
 
 import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
-
+import { getUserId } from "@/helper/get-user-id";
 const http = httpRouter();
 
 http.route({
@@ -24,8 +24,14 @@ http.route({
 
       switch (result.type) {
         case "user.created":
+          getUserId(result.data.id);
           await ctx.runMutation(internal.users.createUser, {
             tokenIdentifier: `https://vast-mantis-65.clerk.accounts.dev|${result.data?.id}`,
+            name:
+              result.data.last_name === null
+                ? `${result.data.first_name}`
+                : `${result.data.first_name} ${result.data.last_name}`,
+            image: result.data.image_url,
           });
           break;
         // case "user.updated":
