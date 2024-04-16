@@ -34,7 +34,6 @@ const FileCard = ({
   const favoriteFiles = useQuery(api.files.getFavoriteFiles, { orgId });
   const deleteFavFile = useMutation(api.files.deleteFavFile);
   const user = useQuery(api.users.getUserProfile);
-  console.log(user, 'THIS IS USER')
   const fileIcon = () => {
     switch (file.type) {
       case "image":
@@ -49,7 +48,7 @@ const FileCard = ({
   };
 
   return (
-    <Card className="lg:max-w-[350px] max-w-[250px]   mt-20 overflow-hidden ">
+    <Card className="lg:max-w-[350px] max-w-[250px] sm:max-w-[300px]   mt-20 overflow-hidden ">
       <CardHeader className="max-w-2xl flex">
         <CardTitle className="flex justify-between items-center lg:text-xl sm:text-sm text-sm md:text-md lg:break-normal md:break-all">
           <div className="flex items-center gap-2">
@@ -60,7 +59,7 @@ const FileCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent
-        className="flex items-center justify-center relative overflow-viisble"
+        className="flex items-center justify-center relative overflow-viisble border-b-2 border-t-2"
         onClick={() => window.open(fileUrl?.url as string, "_blank")}
       >
         {file.type === "image" ? (
@@ -77,8 +76,8 @@ const FileCard = ({
           <File className="w-[250px] h-[160px]" />
         )}
       </CardContent>
-      <CardFooter className="flex justify-between items-center flex-row-reverse ">
-        <div>
+      <CardFooter className="flex items-center flex-row-reverse gap-5 py-3">
+        <div className="ml-auto">
           {favoriteFiles?.map(
             (favFile) =>
               favFile.fileId === file.fileId && (
@@ -93,14 +92,19 @@ const FileCard = ({
         </div>
         <div className="flex items-center gap-4 overflow-auto">
           <Avatar>
-            <AvatarImage src={user?.image} alt="@shadcn"  className="w-16 lg:w-8  rounded-full"  />
+            <AvatarImage
+              src={user?.image}
+              alt="@shadcn"
+              className="w-16 lg:w-8  rounded-full"
+            />
             <AvatarFallback>AVATAR</AvatarFallback>
           </Avatar>
           <div className="text-sm  text-muted-foreground flex justify-start items-start tracking-tighter max-w-[120px]">
-              {user?.name}
+            {user?.name}
           </div>
-          <div className="text-sm text-muted-foreground tracking-tighter max-w-[120px] text-center">
-          Uploaded on {formatRelative(new Date(file._creationTime), new Date())}
+          <div className="text-sm text-muted-foreground tracking-tighter max-w-[150px] text-center">
+            Uploaded on{" "}
+            {formatRelative(new Date(file._creationTime), new Date())}
           </div>
         </div>
       </CardFooter>
