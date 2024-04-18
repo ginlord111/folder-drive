@@ -15,7 +15,7 @@ import { columns } from "@/app/dashboard/files/column";
 import FilterType from "./FilterType";
 const FilesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectType, setSelectType] = useState("")
+  const [selectType, setSelectType] = useState("");
   let tempOrgId;
   const org = useOrganization();
   const user = useUser();
@@ -25,7 +25,7 @@ const FilesPage = () => {
   const orgId = tempOrgId;
   const files = useQuery(
     api.files.getFiles,
-    orgId ? { orgId, query: searchQuery, type:selectType } : "skip"
+    orgId ? { orgId, query: searchQuery, type: selectType } : "skip"
   );
   return (
     <div className="relative bg-white px-10 overflow-hidden">
@@ -48,7 +48,7 @@ const FilesPage = () => {
               </TabsTrigger>
             </TabsList>
           </div>
-          <FilterType setSelectType={setSelectType} selectType={selectType}/>
+          <FilterType setSelectType={setSelectType} selectType={selectType} />
         </div>
         <div className="flex flex-col  md:items-stretch items-center w-full mt-5">
           {files === undefined && <SkeletonFile />}
@@ -69,7 +69,7 @@ const FilesPage = () => {
                 </div>
               </TabsContent>
               <TabsContent value="table">
-                <TableCardFile columns={columns} data={files} />
+           {files && <TableCardFile columns={columns} data={files} />}
               </TabsContent>
             </>
           ) : (
