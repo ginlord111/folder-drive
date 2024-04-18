@@ -12,8 +12,10 @@ import SkeletonFile from "@/components/SkeletonFile";
 import NoFilesAvail from "@/components/NoFilesAvail";
 import TableCardFile from "@/components/TableCardFile";
 import { columns } from "@/app/dashboard/files/column";
+import FilterType from "./FilterType";
 const FilesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectType, setSelectType] = useState("")
   let tempOrgId;
   const org = useOrganization();
   const user = useUser();
@@ -23,7 +25,7 @@ const FilesPage = () => {
   const orgId = tempOrgId;
   const files = useQuery(
     api.files.getFiles,
-    orgId ? { orgId, query: searchQuery } : "skip"
+    orgId ? { orgId, query: searchQuery, type:selectType } : "skip"
   );
   return (
     <div className="relative bg-white px-10 overflow-hidden">
@@ -35,17 +37,19 @@ const FilesPage = () => {
         <UploadFile />
       </div>
       <Tabs defaultValue="grid">
-        <div className="flex items-center max-w-[250px] mt-16">
-          <TabsList className="grid w-full grid-cols-2 h-[50px] py-2">
-            <TabsTrigger value="grid">
-              <p className="mr-2">Grid</p> <LayoutGrid width={20} />
-            </TabsTrigger>
-            <TabsTrigger value="table">
-              <p className="mr-2">Table</p> <Rows2 width={20} />
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex justify-between items-end px-5">
+          <div className="flex items-center max-w-[250px] mt-16">
+            <TabsList className="grid w-full grid-cols-2 h-[50px] py-2">
+              <TabsTrigger value="grid">
+                <p className="mr-2">Grid</p> <LayoutGrid width={20} />
+              </TabsTrigger>
+              <TabsTrigger value="table">
+                <p className="mr-2">Table</p> <Rows2 width={20} />
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <FilterType setSelectType={setSelectType} selectType={selectType}/>
         </div>
-
         <div className="flex flex-col  md:items-stretch items-center w-full mt-5">
           {files === undefined && <SkeletonFile />}
           {!files || files?.length > 0 ? (
@@ -65,13 +69,12 @@ const FilesPage = () => {
                 </div>
               </TabsContent>
               <TabsContent value="table">
-                <TableCardFile columns={columns} data={files}/>
+                <TableCardFile columns={columns} data={files} />
               </TabsContent>
             </>
           ) : (
             <NoFilesAvail />
           )}
-           
         </div>
       </Tabs>
     </div>

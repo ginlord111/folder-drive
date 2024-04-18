@@ -55,7 +55,7 @@ export const createFile = mutation({
       name: args.name,
       orgId: args.orgId,
       type: args.type,
-      userId:user._id,
+      userId: user._id,
     });
   },
 });
@@ -64,6 +64,7 @@ export const getFiles = query({
   args: {
     orgId: v.string(),
     query: v.optional(v.string()),
+  type: v.optional(v.string()),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -85,13 +86,19 @@ export const getFiles = query({
       .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
       .collect();
     const query = args.query;
+    const type = args.type;
     if (query) {
       return (await files).filter((file) =>
         file.name.toLowerCase().includes(query.toLowerCase())
       );
-    } else {
-      return files;
     }
+    if (type) {
+     if(type ==="all"){
+      return files
+     }
+     return (await files).filter((file) => file.type.includes(type));
+    }
+    return files;
   },
 });
 
