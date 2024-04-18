@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "flippant-meerkat-309.convex.cloud",
+        hostname: "earnest-oyster-831.convex.cloud",
       },
     ],
   },
