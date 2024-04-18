@@ -82,6 +82,7 @@ const FileCard = ({
             (favFile) =>
               favFile.fileId === file.fileId && (
                 <FolderHeart
+                key={favFile._id}
                   className="text-yellow-500 animate-jump-in animate-once"
                   onClick={() => {
                     deleteFavFile({ fileId: favFile._id });
