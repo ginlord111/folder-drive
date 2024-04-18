@@ -108,16 +108,13 @@ export const addOrgIdToUser = internalMutation({
 // });
 
 export const getUserProfile = query({
-  // args: { userId: v.id("users") },
-  args: {},
+  args: { userId: v.id("users") },
   async handler(ctx, args) {
-    const identity = await ctx.auth.getUserIdentity();
-    // const user = await ctx.db.get(args.userId);
-    if (!identity?.tokenIdentifier) {
-      throw new Error("No user detect");
-    }
-    const user = await getUser(ctx, identity?.tokenIdentifier);
+    const user = await ctx.db.get(args.userId);
 
+    if (!user) {
+      throw new Error("No such user Exist");
+    }
     return {
       name: user?.name,
       image: user?.image,

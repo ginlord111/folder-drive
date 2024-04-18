@@ -33,7 +33,7 @@ const FileCard = ({
   const fileUrl = useQuery(api.files.getImage, { fileId: file.fileId });
   const favoriteFiles = useQuery(api.files.getFavoriteFiles, { orgId });
   const deleteFavFile = useMutation(api.files.deleteFavFile);
-  const user = useQuery(api.users.getUserProfile);
+  const user = useQuery(api.users.getUserProfile, {userId:file.userId});
   const fileIcon = () => {
     switch (file.type) {
       case "image":

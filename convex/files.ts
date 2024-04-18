@@ -40,12 +40,22 @@ export const createFile = mutation({
     if (!hasAccess) {
       return new ConvexError("You do not have acess to this organization");
     }
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_tokenIdentifier", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+    if (!user) {
+      return;
+    }
 
     await ctx.db.insert("files", {
       fileId: args.fileId,
       name: args.name,
       orgId: args.orgId,
       type: args.type,
+      userId:user._id,
     });
   },
 });

@@ -32,7 +32,6 @@ export type Payment = {
   email: string;
 };
 
-
 // export const getFileUrl = (fileId: Id<"_storage">):string => {
 //   const imageUrl = useQuery(api.files.getImage, {fileId:fileId})
 //   return {imageUrl}

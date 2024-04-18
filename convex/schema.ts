@@ -7,6 +7,7 @@ export default defineSchema({
     name: v.string(),
     orgId: v.string(),
     type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"), v.literal("video")),
+    userId:v.id("users")
   })
     .index("by_orgId", ["orgId"])
     .index("by_fileId", ["fileId"]),

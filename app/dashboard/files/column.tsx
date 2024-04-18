@@ -10,52 +10,53 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Payment } from "@/lib/utils";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { formatRelative } from "date-fns";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { AvatarFallback } from "@radix-ui/react-avatar";
 
-export const columns: ColumnDef<Payment>[] = [
+const UserCell = ({ userId }: { userId: Id<"users"> }) => {
+  const user = useQuery(api.users.getUserProfile, { userId });
+  return (
+    <div className="flex  items-center gap-3">
+      <Avatar className="flex items-center justify-center">
+        <AvatarImage
+          src={user?.image}
+          alt="USER ICON"
+          className="w-8 h-8  rounded-full"
+        />
+      </Avatar>
+      <span>{user?.name}</span>
+    </div>
+  );
+};
+export const columns: ColumnDef<Doc<"files">>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
+    accessorKey: "name",
+    header: "Name",
   },
   {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    accessorKey: "type",
+    header: "Type",
   },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
+    accessorKey: "user",
+    header: "User",
+    cell: ({ row }) => <UserCell userId={row.original.userId} />,
+  },
+  {
+    accessorKey: "_creationTime",
+    header: "Uploaded on",
+    cell: ({ row }) =>
+      formatRelative(new Date(row.original._creationTime), new Date()),
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -65,15 +66,9 @@ export const columns: ColumnDef<Payment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Download</DropdownMenuItem>
+            <DropdownMenuItem>Favorites</DropdownMenuItem>
+            <DropdownMenuItem>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

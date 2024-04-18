@@ -11,6 +11,7 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import SkeletonFile from "@/components/SkeletonFile";
 import NoFilesAvail from "@/components/NoFilesAvail";
 import TableCardFile from "@/components/TableCardFile";
+import { columns } from "@/app/dashboard/files/column";
 const FilesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   let tempOrgId;
@@ -64,12 +65,13 @@ const FilesPage = () => {
                 </div>
               </TabsContent>
               <TabsContent value="table">
-                <TableCardFile />
+                <TableCardFile columns={columns} data={files}/>
               </TabsContent>
             </>
           ) : (
             <NoFilesAvail />
           )}
+           
         </div>
       </Tabs>
     </div>
