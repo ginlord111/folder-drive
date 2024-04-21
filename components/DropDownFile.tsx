@@ -19,9 +19,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { EllipsisVertical, FolderHeart, Trash,File } from "lucide-react";
+import {
+  EllipsisVertical,
+  FolderHeart,
+  Trash,
+  File,
+  FolderSync,
+} from "lucide-react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-
+import { usePathname } from "next/navigation";
 const DropDownFile = ({
   file,
   fileUrl,
@@ -35,6 +41,7 @@ const DropDownFile = ({
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
   const deleteFile = useMutation(api.files.deleteFile);
   const favFile = useMutation(api.files.createFavoriteFile);
+  const pathname = usePathname();
   const favFileBtn = async (fileId: Id<"files" | "favorites">) => {
     try {
       await favFile({ file_id: fileId, orgId });
@@ -55,6 +62,32 @@ const DropDownFile = ({
       description: "File has been successfully deleted",
     });
   };
+
+  console.log(pathname, 'pathname')
+
+  const dropdownAllFiles = [
+    {
+      title: "Download",
+      onClick: () => window.open(fileUrl as string, "_blank"),
+      icon: File,
+      iconColor: "text-blue-500",
+    },
+    {
+      title: pathname === '/dashboard/favorites' ? 'Remove from favorites' : 'Favorites',
+      onClick: () => favFileBtn(file._id),
+      icon: FolderHeart,
+      iconColor: pathname === '/dashboard/favorites' ? "text-red-200" : 'text-red-500'
+    },
+  ];
+  const dropdownDelete = [
+    {
+      title: "Restore",
+      onClick: () => null,
+      icon: FolderSync,
+      iconColor: "text-green-500",
+    },
+  ];
+
   return (
     <>
       <AlertDialog open={isOpenDialog} onOpenChange={sestIsOpenDialog}>
@@ -63,21 +96,30 @@ const DropDownFile = ({
             <EllipsisVertical className="w-7 h-7" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="p-5 flex flex-col gap-3">
-            <DropdownMenuItem
-              className="flex gap-3"
-              onClick={() => window.open(fileUrl as string, "_blank")}
-            >
-              <File className="text-blue-500" /> Download
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex gap-3"
-              onClick={() => favFileBtn(file._id)}
-            >
-              <FolderHeart className="text-yellow-500" /> Favorite
-            </DropdownMenuItem>
+            {pathname === "dashboard/files" || "dashnoard/favorites"
+              ? dropdownAllFiles.map((option, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={option.onClick}
+                    className="flex gap-3"
+                  >
+                    {<option.icon className={option.iconColor} />}
+                    {<span>{option.title}</span>}
+                  </DropdownMenuItem>
+                ))
+              : dropdownDelete.map((option, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={option.onClick}
+                    className="flex gap-3"
+                  >
+                    {<option.icon className={option.iconColor} />}
+                    {<span>{option.title}</span>}
+                  </DropdownMenuItem>
+                ))}
             <DropdownMenuItem>
               <AlertDialogTrigger className="flex gap-3">
-                <Trash className="text-red-500" /> Delete
+                <Trash className="text-red-500" /> Move to trash
               </AlertDialogTrigger>
             </DropdownMenuItem>
           </DropdownMenuContent>

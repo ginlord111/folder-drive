@@ -6,8 +6,6 @@ import { Webhook } from "svix";
 
 import { internalAction } from "./_generated/server";
 
-const webhookSecret = "whsec_IsBy/xNJIuOkbbiRQGI9NCpT6ViBU3ci";
-
 export const fulfill = internalAction({
   args: { headers: v.any(), payload: v.string() },
   handler: async (ctx, args) => {
