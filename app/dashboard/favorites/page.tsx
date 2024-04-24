@@ -1,8 +1,8 @@
-import FavFilePage from "@/components/FavFilePage";
+import FilePage from "@/components/FilePage";
 
 const FavFileLayout = () => {
   return (
-    <FavFilePage />
+    <FilePage favoritePage/>
   )
   
 };

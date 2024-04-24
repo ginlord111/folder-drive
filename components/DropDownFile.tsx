@@ -33,18 +33,20 @@ const DropDownFile = ({
   fileUrl,
   orgId,
 }: {
-  file: Doc<"files" | "favorites">;
+  file: Doc<"files">;
   fileUrl: string | null | undefined;
   orgId: string;
 }) => {
   const { toast } = useToast();
   const [isOpenDialog, sestIsOpenDialog] = useState(false);
-  const deleteFile = useMutation(api.files.deleteFile);
+  const moveToTrash = useMutation(api.files.moveToTrash);
+  const deleteFavFile = useMutation(api.files.deleteFavFile);
   const favFile = useMutation(api.files.createFavoriteFile);
   const pathname = usePathname();
-  const favFileBtn = async (fileId: Id<"files" | "favorites">) => {
+  const trash = pathname === "/dashboard/trash";
+  const favFileBtn = async (fileId: Id<"files">) => {
     try {
-      await favFile({ file_id: fileId, orgId });
+      await favFile({ file_id: file._id, orgId, userId: file.userId });
     } catch (error) {
       toast({
         variant: "destructive",
@@ -54,7 +56,7 @@ const DropDownFile = ({
     }
   };
   const deleteFileBtn = async () => {
-    await deleteFile({ fileId: file._id });
+    await moveToTrash({ fileId: file._id });
     sestIsOpenDialog(false);
     toast({
       variant: "success",
@@ -63,7 +65,7 @@ const DropDownFile = ({
     });
   };
 
-  console.log(pathname, 'pathname')
+  console.log(pathname, "pathname");
 
   const dropdownAllFiles = [
     {
@@ -73,10 +75,17 @@ const DropDownFile = ({
       iconColor: "text-blue-500",
     },
     {
-      title: pathname === '/dashboard/favorites' ? 'Remove from favorites' : 'Favorites',
-      onClick: () => favFileBtn(file._id),
+      title:
+        pathname === "/dashboard/favorites"
+          ? "Remove from favorites"
+          : "Favorites",
+      onClick:
+        pathname === "/dashboard/files"
+          ? () => favFileBtn(file._id)
+          : () => deleteFavFile({ fileId: file._id, orgId }),
       icon: FolderHeart,
-      iconColor: pathname === '/dashboard/favorites' ? "text-red-200" : 'text-red-500'
+      iconColor:
+        pathname === "/dashboard/favorites" ? "text-red-200" : "text-red-500",
     },
   ];
   const dropdownDelete = [
@@ -96,7 +105,7 @@ const DropDownFile = ({
             <EllipsisVertical className="w-7 h-7" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="p-5 flex flex-col gap-3">
-            {pathname === "dashboard/files" || "dashnoard/favorites"
+            {pathname === "/dashboard/files" || pathname === "/dashnoard/favorites"
               ? dropdownAllFiles.map((option, index) => (
                   <DropdownMenuItem
                     key={index}
@@ -119,7 +128,12 @@ const DropDownFile = ({
                 ))}
             <DropdownMenuItem>
               <AlertDialogTrigger className="flex gap-3">
-                <Trash className="text-red-500" /> Move to trash
+                <Trash className="text-red-500" />{" "}
+                {trash ? (
+                  <span>Permantly delete</span>
+                ) : (
+                  <span>Move to trash</span>
+                )}
               </AlertDialogTrigger>
             </DropdownMenuItem>
           </DropdownMenuContent>

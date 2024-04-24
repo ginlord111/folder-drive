@@ -26,14 +26,16 @@ import DropDownFile from "./DropDownFile";
 const FileCard = ({
   file,
   orgId,
+  favorite,
 }: {
-  file: Doc<"files" | "favorites">;
+  file: Doc<"files">;
   orgId: string;
+  favorite?: boolean;
 }) => {
   const fileUrl = useQuery(api.files.getImage, { fileId: file.fileId });
-  const favoriteFiles = useQuery(api.files.getFavoriteFiles, { orgId });
+  const favoriteFiles = useQuery(api.files.getFiles, { orgId, favorite:true });
   const deleteFavFile = useMutation(api.files.deleteFavFile);
-  const user = useQuery(api.users.getUserProfile, {userId:file.userId});
+  const user = useQuery(api.users.getUserProfile, { userId: file.userId });
   const fileIcon = () => {
     switch (file.type) {
       case "image":
@@ -46,6 +48,7 @@ const FileCard = ({
         <File />;
     }
   };
+  console.log(favoriteFiles, "FAVORITE FILES")
 
   return (
     <Card className="lg:max-w-[350px] max-w-[250px] sm:max-w-[300px]   mt-20 overflow-hidden ">
@@ -82,10 +85,10 @@ const FileCard = ({
             (favFile) =>
               favFile.fileId === file.fileId && (
                 <FolderHeart
-                key={favFile._id}
+                  key={favFile._id}
                   className="text-yellow-500 animate-jump-in animate-once"
                   onClick={() => {
-                    deleteFavFile({ fileId: favFile._id });
+                    deleteFavFile({ fileId: favFile._id, orgId });
                   }}
                 />
               )

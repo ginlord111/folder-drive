@@ -13,7 +13,8 @@ import NoFilesAvail from "@/components/NoFilesAvail";
 import TableCardFile from "@/components/TableCardFile";
 import { columns } from "@/app/dashboard/files/column";
 import FilterType from "./FilterType";
-const FilesPage = () => {
+import { usePathname } from "next/navigation";
+const FilesPage = ({ favoritePage }: { favoritePage?: boolean }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectType, setSelectType] = useState("");
   let tempOrgId;
@@ -22,16 +23,18 @@ const FilesPage = () => {
   if (org.isLoaded && user.isLoaded) {
     tempOrgId = org.organization?.id ?? user.user?.id;
   }
+  const pathname = usePathname();
+  const trash = pathname === "/dashboard/trash"
   const orgId = tempOrgId;
   const files = useQuery(
     api.files.getFiles,
-    orgId ? { orgId, query: searchQuery, type: selectType } : "skip"
+    orgId ? { orgId, query: searchQuery, type: selectType , favorite:favoritePage, trash} : "skip"
   );
   return (
     <div className="relative bg-white px-10 overflow-hidden">
       <div className="flex items-center justify-between  py-2">
         <div className="md:text-4xl text-xl font-bold tracking-tight whitespace-nowrap">
-          <h1>Your Files</h1>
+          <h1>{favoritePage ? 'Favorite files': 'Your files'}</h1>
         </div>
         <SearchFile setSearchQuery={setSearchQuery} />
         <UploadFile />
@@ -54,9 +57,6 @@ const FilesPage = () => {
           {files === undefined && <SkeletonFile />}
           {!files || files?.length > 0 ? (
             <>
-              <h3 className="text-lg text-muted-foreground overflow-hidden">
-                Total files: {files?.length}
-              </h3>
               <TabsContent value="grid">
                 <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5">
                   {files?.map((file) => (
@@ -64,6 +64,7 @@ const FilesPage = () => {
                       key={file._id}
                       file={file}
                       orgId={orgId as string}
+                      favorite={favoritePage}
                     />
                   ))}
                 </div>

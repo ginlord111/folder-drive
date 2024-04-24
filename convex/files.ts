@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { MutationCtx, QueryCtx, mutation, query } from "./_generated/server";
 import { getUser } from "./users";
+import { Doc, Id } from "./_generated/dataModel";
 export const hasAccessToOrg = async (
   ctx: QueryCtx | MutationCtx,
   tokenIdentifier: string,
@@ -10,9 +11,29 @@ export const hasAccessToOrg = async (
 
   const hasAccess =
     user.tokenIdentifier.includes(orgId) || user.orgIds.includes(orgId);
-
-  return hasAccess;
+  if (!hasAccess) {
+    return null;
+  }
+  return user;
 };
+
+export const getFavFiles = async (
+  ctx: QueryCtx | MutationCtx,
+  hasAccess: Id<"users">,
+  orgId: string
+) => {
+  const favFile = await ctx.db
+    .query("favorites")
+    .withIndex("by_userId_orgId_fileId", (q) =>
+      q.eq("userId", hasAccess).eq("orgId", orgId)
+    )
+    .collect();
+  if (!favFile) {
+    throw new Error("No favorite files exist yet");
+  }
+  return favFile;
+};
+
 const typeFile = v.union(
   v.literal("image"),
   v.literal("csv"),
@@ -64,7 +85,9 @@ export const getFiles = query({
   args: {
     orgId: v.string(),
     query: v.optional(v.string()),
-  type: v.optional(v.string()),
+    type: v.optional(v.string()),
+    favorite: v.optional(v.boolean()),
+    trash:v.optional(v.boolean()),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -81,7 +104,8 @@ export const getFiles = query({
     if (!hasAccess) {
       return [];
     }
-    const files = ctx.db
+
+    let files = await ctx.db
       .query("files")
       .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
       .collect();
@@ -93,12 +117,24 @@ export const getFiles = query({
       );
     }
     if (type) {
-     if(type ==="all"){
-      return files
-     }
-     return (await files).filter((file) => file.type.includes(type));
+      if (type === "all") {
+        return files;
+      }
+      return (await files).filter((file) => file.type.includes(type));
     }
-    return files;
+
+    if(args.trash){
+      files = files.filter((file) => (file.shouldDelete))
+      return files;
+    }
+
+    if (args.favorite) {
+      const getFavFile = await getFavFiles(ctx, hasAccess._id, args.orgId);
+      files = (await files).filter((file) =>
+        getFavFile.some((favorite) => favorite.fileId === file._id)
+      );
+    }
+    return files.filter((file)=> file.shouldDelete===undefined);
   },
 });
 
@@ -111,9 +147,9 @@ export const generateUploadUrl = mutation(async (ctx) => {
 
   return await ctx.storage.generateUploadUrl();
 });
-export const deleteFile = mutation({
+export const moveToTrash = mutation({
   args: {
-    fileId: v.union(v.id("files"), v.id("favorites")),
+    fileId: v.id("files"),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -134,7 +170,9 @@ export const deleteFile = mutation({
       throw new Error("You do not have access to delete this file");
     }
 
-    await ctx.db.delete(file._id);
+   await ctx.db.patch(file._id, {
+    shouldDelete:true,
+   });
   },
 });
 
@@ -156,8 +194,9 @@ export const getImage = query({
 
 export const createFavoriteFile = mutation({
   args: {
-    file_id: v.union(v.id("files"), v.id("favorites")),
+    file_id: v.id("files"),
     orgId: v.string(),
+    userId: v.id("users"),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -177,6 +216,7 @@ export const createFavoriteFile = mutation({
     if (!hasAccess) {
       return new ConvexError("You do not have acess to this organization");
     }
+
     const user = await ctx.db
       .query("users")
       .withIndex("by_tokenIdentifier", (q) =>
@@ -186,53 +226,52 @@ export const createFavoriteFile = mutation({
     if (!user) {
       return;
     }
-    const favFile = await ctx.db
-      .query("favorites")
-      .withIndex("by_fileId", (q) => q.eq("fileId", file.fileId))
-      .first();
-    if (favFile) {
-      throw new Error("Already in your favorites");
-    }
+    const favFiles =  await getFavFiles(ctx, hasAccess._id, args.orgId);
+
+    favFiles.map((favFile) => {
+     if( favFile.fileId === args.file_id){
+      throw new Error("Already in your favorites")
+     }
+    });
 
     await ctx.db.insert("favorites", {
-      fileId: file?.fileId,
-      name: file.name,
+      fileId: file?._id,
       orgId: file.orgId,
-      type: file.type,
-      userId: user?._id,
+      userId: file.userId,
     });
   },
 });
 
-export const getFavoriteFiles = query({
-  args: {
-    orgId: v.string(),
-  },
-  async handler(ctx, args) {
-    const identity = await ctx.auth.getUserIdentity();
+// export const getFavoriteFiles = query({
+//   args: {
+//     orgId: v.string(),
+//   },
+//   async handler(ctx, args) {
+//     const identity = await ctx.auth.getUserIdentity();
 
-    if (!identity) {
-      return [];
-    }
+//     if (!identity) {
+//       return [];
+//     }
 
-    const hasAccess = await hasAccessToOrg(
-      ctx,
-      identity.tokenIdentifier,
-      args.orgId
-    );
-    if (!hasAccess) {
-      return [];
-    }
-    return await ctx.db
-      .query("favorites")
-      .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
-      .collect();
-  },
-});
+//     const hasAccess = await hasAccessToOrg(
+//       ctx,
+//       identity.tokenIdentifier,
+//       args.orgId
+//     );
+//     if (!hasAccess) {
+//       return [];
+//     }
+//     return await ctx.db
+//       .query("favorites")
+//       .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
+//       .collect();
+//   },
+// });
 
 export const deleteFavFile = mutation({
   args: {
-    fileId: v.id("favorites"),
+    fileId:v.id("files"),
+    orgId:v.string(),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -240,19 +279,24 @@ export const deleteFavFile = mutation({
     if (!identity) {
       throw new Error("You must login first");
     }
-    const favFile = await ctx.db.get(args.fileId);
-    if (!favFile) {
-      throw new Error("File does not exist");
-    }
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      favFile?.orgId
+      args.orgId
     );
     if (!hasAccess) {
       throw new Error("You do not have access to delete this file");
     }
 
-    await ctx.db.delete(favFile._id);
+  const favFiles =  await getFavFiles(ctx, hasAccess._id, args.orgId);
+
+    if (!favFiles) {
+      throw new Error("File does not exist");
+    }
+    favFiles.map(async(favFile)=> {
+      if(favFile.fileId === args.fileId){
+      await ctx.db.delete(favFile._id)
+      }
+    })
   },
 });

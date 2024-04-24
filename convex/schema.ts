@@ -20,10 +20,10 @@ export default defineSchema({
     image:v.string(),
   }).index("by_tokenIdentifier", ["tokenIdentifier"]),
   favorites: defineTable({
-    fileId: v.id("_storage"),
-    name: v.string(),
+    fileId: v.id("files"),
+    // name: v.string(),
     orgId: v.string(),
-    type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"), v.literal("video")),
+    // type: v.union(v.literal("image"), v.literal("csv"), v.literal("pdf"), v.literal("video")),
     userId:v.id("users")
-  }).index("by_orgId", ["orgId"]).index("by_fileId", ["fileId"]),
+  }).index("by_userId_orgId_fileId", ["userId", "orgId", "fileId"]),
 });
