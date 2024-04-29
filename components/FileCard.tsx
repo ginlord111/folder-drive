@@ -71,7 +71,9 @@ const FileCard = ({
             width="250"
             height="150"
             src={fileUrl?.url as string}
+            loading="eager"
             className="p-5 object-cover rounded-xl"
+            priority={true}
           />
         ) : file.type === "video" ? (
           <Video className="w-[250px] h-[160px]" />

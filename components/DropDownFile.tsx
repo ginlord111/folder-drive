@@ -42,6 +42,7 @@ const DropDownFile = ({
   const moveToTrash = useMutation(api.files.moveToTrash);
   const deleteFavFile = useMutation(api.files.deleteFavFile);
   const favFile = useMutation(api.files.createFavoriteFile);
+  const restoreFile = useMutation(api.files.restoreFile)
   const pathname = usePathname();
   const trash = pathname === "/dashboard/trash";
   const favFileBtn = async (fileId: Id<"files">) => {
@@ -91,7 +92,14 @@ const DropDownFile = ({
   const dropdownDelete = [
     {
       title: "Restore",
-      onClick: () => null,
+      onClick: async() => {
+      await restoreFile({fileId:file._id})
+      toast({
+        variant: "success",
+        title: "Successfully restored file",
+        description: "File has been successfully restored",
+      });
+      },
       icon: FolderSync,
       iconColor: "text-green-500",
     },

@@ -34,7 +34,7 @@ const FilesPage = ({ favoritePage }: { favoritePage?: boolean }) => {
     <div className="relative bg-white px-10 overflow-hidden">
       <div className="flex items-center justify-between  py-2">
         <div className="md:text-4xl text-xl font-bold tracking-tight whitespace-nowrap">
-          <h1>{favoritePage ? 'Favorite files': 'Your files'}</h1>
+          <h1>{favoritePage ? 'Favorite files': trash ? "Trash files" : "Your files"}</h1>
         </div>
         <SearchFile setSearchQuery={setSearchQuery} />
         <UploadFile />

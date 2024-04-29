@@ -87,7 +87,7 @@ export const getFiles = query({
     query: v.optional(v.string()),
     type: v.optional(v.string()),
     favorite: v.optional(v.boolean()),
-    trash:v.optional(v.boolean()),
+    trash: v.optional(v.boolean()),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -116,15 +116,25 @@ export const getFiles = query({
         file.name.toLowerCase().includes(query.toLowerCase())
       );
     }
-    if (type) {
+    if (type && !args.trash) {
       if (type === "all") {
-        return files;
+        return files.filter(
+          (file) =>
+            file.shouldDelete !==true
+        );
       }
-      return (await files).filter((file) => file.type.includes(type));
+      return (await files).filter((file) => file.type.includes(type) && file.shouldDelete!==true);
     }
 
-    if(args.trash){
-      files = files.filter((file) => (file.shouldDelete))
+    if (args.trash) {
+      files = files.filter((file) => file.shouldDelete);
+      if(type){
+        if(type==="all"){
+       return files;
+        }
+        files = files.filter((file) => files.some((delFile)=>delFile.type.includes(type) && file.shouldDelete));
+      }
+    //  if(type)return files.filter((file)=> file.type.includes(type)).some((fileDel)=> fileDel.shouldDelete);
       return files;
     }
 
@@ -134,7 +144,9 @@ export const getFiles = query({
         getFavFile.some((favorite) => favorite.fileId === file._id)
       );
     }
-    return files.filter((file)=> file.shouldDelete===undefined);
+    return files.filter(
+      (file) => file.shouldDelete === undefined || file.shouldDelete === false
+    );
   },
 });
 
@@ -170,9 +182,9 @@ export const moveToTrash = mutation({
       throw new Error("You do not have access to delete this file");
     }
 
-   await ctx.db.patch(file._id, {
-    shouldDelete:true,
-   });
+    await ctx.db.patch(file._id, {
+      shouldDelete: true,
+    });
   },
 });
 
@@ -226,12 +238,12 @@ export const createFavoriteFile = mutation({
     if (!user) {
       return;
     }
-    const favFiles =  await getFavFiles(ctx, hasAccess._id, args.orgId);
+    const favFiles = await getFavFiles(ctx, hasAccess._id, args.orgId);
 
     favFiles.map((favFile) => {
-     if( favFile.fileId === args.file_id){
-      throw new Error("Already in your favorites")
-     }
+      if (favFile.fileId === args.file_id) {
+        throw new Error("Already in your favorites");
+      }
     });
 
     await ctx.db.insert("favorites", {
@@ -270,8 +282,8 @@ export const createFavoriteFile = mutation({
 
 export const deleteFavFile = mutation({
   args: {
-    fileId:v.id("files"),
-    orgId:v.string(),
+    fileId: v.id("files"),
+    orgId: v.string(),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -288,15 +300,44 @@ export const deleteFavFile = mutation({
       throw new Error("You do not have access to delete this file");
     }
 
-  const favFiles =  await getFavFiles(ctx, hasAccess._id, args.orgId);
+    const favFiles = await getFavFiles(ctx, hasAccess._id, args.orgId);
 
     if (!favFiles) {
       throw new Error("File does not exist");
     }
-    favFiles.map(async(favFile)=> {
-      if(favFile.fileId === args.fileId){
-      await ctx.db.delete(favFile._id)
+    favFiles.map(async (favFile) => {
+      if (favFile.fileId === args.fileId) {
+        await ctx.db.delete(favFile._id);
       }
-    })
+    });
+  },
+});
+
+export const restoreFile = mutation({
+  args: {
+    fileId: v.id("files"),
+  },
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("You must login first");
+    }
+    const file = await ctx.db.get(args.fileId);
+    if (!file) {
+      throw new Error("File does not exist");
+    }
+    const hasAccess = await hasAccessToOrg(
+      ctx,
+      identity.tokenIdentifier,
+      file?.orgId
+    );
+    if (!hasAccess) {
+      throw new Error("You do not have access to delete this file");
+    }
+
+    await ctx.db.patch(file._id, {
+      shouldDelete: false,
+    });
   },
 });
