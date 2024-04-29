@@ -42,7 +42,8 @@ const DropDownFile = ({
   const moveToTrash = useMutation(api.files.moveToTrash);
   const deleteFavFile = useMutation(api.files.deleteFavFile);
   const favFile = useMutation(api.files.createFavoriteFile);
-  const restoreFile = useMutation(api.files.restoreFile)
+  const restoreFile = useMutation(api.files.restoreFile);
+  const permaDelete = useMutation(api.files.permaDelete);
   const pathname = usePathname();
   const trash = pathname === "/dashboard/trash";
   const favFileBtn = async (fileId: Id<"files">) => {
@@ -58,6 +59,16 @@ const DropDownFile = ({
   };
   const deleteFileBtn = async () => {
     await moveToTrash({ fileId: file._id });
+    sestIsOpenDialog(false);
+    toast({
+      variant: "success",
+      title: "Successfully Deleted",
+      description: "File has been successfully deleted",
+    });
+  };
+
+  const permaDeleteBtn = async () => {
+    await permaDelete({ fileId: file._id });
     sestIsOpenDialog(false);
     toast({
       variant: "success",
@@ -92,13 +103,13 @@ const DropDownFile = ({
   const dropdownDelete = [
     {
       title: "Restore",
-      onClick: async() => {
-      await restoreFile({fileId:file._id})
-      toast({
-        variant: "success",
-        title: "Successfully restored file",
-        description: "File has been successfully restored",
-      });
+      onClick: async () => {
+        await restoreFile({ fileId: file._id });
+        toast({
+          variant: "success",
+          title: "Successfully restored file",
+          description: "File has been successfully restored",
+        });
       },
       icon: FolderSync,
       iconColor: "text-green-500",
@@ -113,7 +124,8 @@ const DropDownFile = ({
             <EllipsisVertical className="w-7 h-7" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="p-5 flex flex-col gap-3">
-            {pathname === "/dashboard/files" || pathname === "/dashnoard/favorites"
+            {pathname === "/dashboard/files" ||
+            pathname === "/dashnoard/favorites"
               ? dropdownAllFiles.map((option, index) => (
                   <DropdownMenuItem
                     key={index}
@@ -157,7 +169,7 @@ const DropDownFile = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500" onClick={deleteFileBtn}>
+            <AlertDialogAction className="bg-red-500" onClick={trash ? permaDeleteBtn : deleteFileBtn}>
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>

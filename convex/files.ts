@@ -5,7 +5,7 @@ import { Doc, Id } from "./_generated/dataModel";
 export const hasAccessToOrg = async (
   ctx: QueryCtx | MutationCtx,
   tokenIdentifier: string,
-  orgId: string
+  orgId: string,
 ) => {
   const user = await getUser(ctx, tokenIdentifier);
 
@@ -20,12 +20,12 @@ export const hasAccessToOrg = async (
 export const getFavFiles = async (
   ctx: QueryCtx | MutationCtx,
   hasAccess: Id<"users">,
-  orgId: string
+  orgId: string,
 ) => {
   const favFile = await ctx.db
     .query("favorites")
     .withIndex("by_userId_orgId_fileId", (q) =>
-      q.eq("userId", hasAccess).eq("orgId", orgId)
+      q.eq("userId", hasAccess).eq("orgId", orgId),
     )
     .collect();
   if (!favFile) {
@@ -38,7 +38,7 @@ const typeFile = v.union(
   v.literal("image"),
   v.literal("csv"),
   v.literal("pdf"),
-  v.literal("video")
+  v.literal("video"),
 );
 export const createFile = mutation({
   args: {
@@ -55,7 +55,7 @@ export const createFile = mutation({
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      args.orgId
+      args.orgId,
     );
 
     if (!hasAccess) {
@@ -64,7 +64,7 @@ export const createFile = mutation({
     const user = await ctx.db
       .query("users")
       .withIndex("by_tokenIdentifier", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .first();
     if (!user) {
@@ -99,7 +99,7 @@ export const getFiles = query({
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      args.orgId
+      args.orgId,
     );
     if (!hasAccess) {
       return [];
@@ -113,39 +113,42 @@ export const getFiles = query({
     const type = args.type;
     if (query) {
       return (await files).filter((file) =>
-        file.name.toLowerCase().includes(query.toLowerCase())
+        file.name.toLowerCase().includes(query.toLowerCase()),
       );
     }
     if (type && !args.trash) {
       if (type === "all") {
-        return files.filter(
-          (file) =>
-            file.shouldDelete !==true
-        );
+        return files.filter((file) => file.shouldDelete !== true);
       }
-      return (await files).filter((file) => file.type.includes(type) && file.shouldDelete!==true);
+      return (await files).filter(
+        (file) => file.type.includes(type) && file.shouldDelete !== true,
+      );
     }
 
     if (args.trash) {
       files = files.filter((file) => file.shouldDelete);
-      if(type){
-        if(type==="all"){
-       return files;
+      if (type) {
+        if (type === "all") {
+          return files;
         }
-        files = files.filter((file) => files.some((delFile)=>delFile.type.includes(type) && file.shouldDelete));
+        files = files.filter((file) =>
+          files.some(
+            (delFile) => delFile.type.includes(type) && file.shouldDelete,
+          ),
+        );
       }
-    //  if(type)return files.filter((file)=> file.type.includes(type)).some((fileDel)=> fileDel.shouldDelete);
+      //  if(type)return files.filter((file)=> file.type.includes(type)).some((fileDel)=> fileDel.shouldDelete);
       return files;
     }
 
     if (args.favorite) {
       const getFavFile = await getFavFiles(ctx, hasAccess._id, args.orgId);
       files = (await files).filter((file) =>
-        getFavFile.some((favorite) => favorite.fileId === file._id)
+        getFavFile.some((favorite) => favorite.fileId === file._id),
       );
     }
     return files.filter(
-      (file) => file.shouldDelete === undefined || file.shouldDelete === false
+      (file) => file.shouldDelete === undefined || file.shouldDelete === false,
     );
   },
 });
@@ -176,7 +179,7 @@ export const moveToTrash = mutation({
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      file?.orgId
+      file?.orgId,
     );
     if (!hasAccess) {
       throw new Error("You do not have access to delete this file");
@@ -222,7 +225,7 @@ export const createFavoriteFile = mutation({
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      file.orgId
+      file.orgId,
     );
 
     if (!hasAccess) {
@@ -232,7 +235,7 @@ export const createFavoriteFile = mutation({
     const user = await ctx.db
       .query("users")
       .withIndex("by_tokenIdentifier", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .first();
     if (!user) {
@@ -294,7 +297,7 @@ export const deleteFavFile = mutation({
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      args.orgId
+      args.orgId,
     );
     if (!hasAccess) {
       throw new Error("You do not have access to delete this file");
@@ -330,7 +333,7 @@ export const restoreFile = mutation({
     const hasAccess = await hasAccessToOrg(
       ctx,
       identity.tokenIdentifier,
-      file?.orgId
+      file?.orgId,
     );
     if (!hasAccess) {
       throw new Error("You do not have access to delete this file");
@@ -339,5 +342,14 @@ export const restoreFile = mutation({
     await ctx.db.patch(file._id, {
       shouldDelete: false,
     });
+  },
+});
+
+export const permaDelete = mutation({
+  args: {
+    fileId: v.id("files"),
+  },
+  async handler(ctx, args) {
+    await ctx.db.delete(args.fileId);
   },
 });
