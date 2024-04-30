@@ -1,22 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
+import { deleteFileBtn, favFileBtn, permaDeleteBtn } from "@/helper/functions";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { formatRelative } from "date-fns";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
-
+import { usePathname } from "next/navigation";
+import { moveToTrash } from "@/convex/files";
+import { toast } from "@/components/ui/use-toast";
 const UserCell = ({ userId }: { userId: Id<"users"> }) => {
   const user = useQuery(api.users.getUserProfile, { userId });
   return (
@@ -57,6 +56,30 @@ export const columns: ColumnDef<Doc<"files">>[] = [
     header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
+      const deleteFavFile = useMutation(api.files.deleteFavFile);
+      const favFile = useMutation(api.files.createFavoriteFile);
+      const permaDelete = useMutation(api.files.permaDelete);
+      const moveToTrash = useMutation(api.files.moveToTrash);
+      const restoreFile = useMutation(api.files.restoreFile);
+      const pathname = usePathname();
+      const fileUrl = useQuery(api.files.getImage, {
+        fileId: row.original.fileId,
+      });
+      const isNotFavPage = pathname !== "/dashboard/favorites";
+      const isTrashPage = pathname === "/dashboard/trash";
+      const handleRestoreDownloadBtn = async () => {
+        if(isTrashPage){
+          await restoreFile({fileId:row.original._id})
+          toast({
+            variant: "success",
+            title: "Successfully restored file",
+            description: "File has been successfully restored",
+          });
+        }
+        else{
+          window.open(fileUrl?.url as string, "_blank")
+        }
+      }
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -66,9 +89,41 @@ export const columns: ColumnDef<Doc<"files">>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Download</DropdownMenuItem>
-            <DropdownMenuItem>Favorites</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleRestoreDownloadBtn}
+            >
+              {isTrashPage ? "Restore" : "Download"}
+            </DropdownMenuItem>
+            {!isTrashPage && (
+              <DropdownMenuItem
+                onClick={() =>
+                  isNotFavPage
+                    ? favFileBtn(
+                        row.original._id,
+                        row.original.orgId,
+                        row.original.userId,
+                        favFile,
+                      )
+                    : deleteFavFile({
+                        fileId: row.original._id,
+                        orgId: row.original.orgId,
+                      })
+                }
+              >
+                {isNotFavPage
+                  ? "Add to your favorites"
+                  : "Remove from favorites"}
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
+              onClick={() =>
+                isTrashPage
+                  ? permaDeleteBtn(row.original._id, permaDelete)
+                  : deleteFileBtn(row.original._id, moveToTrash)
+              }
+            >
+              {isTrashPage ? "Permanent delete" : "Move to trash"}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

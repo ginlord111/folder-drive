@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useToast } from "./ui/use-toast";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { deleteFileBtn, favFileBtn } from "@/helper/functions";
+import { permaDeleteBtn } from "@/helper/functions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,47 +40,14 @@ const DropDownFile = ({
   orgId: string;
 }) => {
   const { toast } = useToast();
-  const [isOpenDialog, sestIsOpenDialog] = useState(false);
-  const moveToTrash = useMutation(api.files.moveToTrash);
+  const [isOpenDialog, sestIsOpenDialog] = useState<boolean | undefined>(false);
   const deleteFavFile = useMutation(api.files.deleteFavFile);
   const favFile = useMutation(api.files.createFavoriteFile);
   const restoreFile = useMutation(api.files.restoreFile);
+  const moveToTrash = useMutation(api.files.moveToTrash);
   const permaDelete = useMutation(api.files.permaDelete);
   const pathname = usePathname();
   const trash = pathname === "/dashboard/trash";
-  const favFileBtn = async (fileId: Id<"files">) => {
-    try {
-      await favFile({ file_id: file._id, orgId, userId: file.userId });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "File is already in your favorites",
-      });
-    }
-  };
-  const deleteFileBtn = async () => {
-    await moveToTrash({ fileId: file._id });
-    sestIsOpenDialog(false);
-    toast({
-      variant: "success",
-      title: "Successfully Deleted",
-      description: "File has been successfully deleted",
-    });
-  };
-
-  const permaDeleteBtn = async () => {
-    await permaDelete({ fileId: file._id });
-    sestIsOpenDialog(false);
-    toast({
-      variant: "success",
-      title: "Successfully Deleted",
-      description: "File has been successfully deleted",
-    });
-  };
-
-  console.log(pathname, "pathname");
-
   const dropdownAllFiles = [
     {
       title: "Download",
@@ -91,10 +60,20 @@ const DropDownFile = ({
         pathname === "/dashboard/favorites"
           ? "Remove from favorites"
           : "Favorites",
-      onClick:
+      onClick: () =>
         pathname === "/dashboard/files"
-          ? () => favFileBtn(file._id)
-          : () => deleteFavFile({ fileId: file._id, orgId }),
+          ? (favFileBtn(file._id, orgId, file.userId, favFile),
+            toast({
+              variant: "success",
+              title: "Liked File",
+              description: "File has been successfully saved in you favorites",
+            }))
+          : (deleteFavFile({ fileId: file._id, orgId }),
+            toast({
+              variant: "destructive",
+              title: "Succesuful remove fil",
+              description: "File has been successfully removed in you favorites",
+            })),
       icon: FolderHeart,
       iconColor:
         pathname === "/dashboard/favorites" ? "text-red-200" : "text-red-500",
@@ -125,7 +104,7 @@ const DropDownFile = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="p-5 flex flex-col gap-3">
             {pathname === "/dashboard/files" ||
-            pathname === "/dashnoard/favorites"
+            pathname === "/dashboard/favorites"
               ? dropdownAllFiles.map((option, index) => (
                   <DropdownMenuItem
                     key={index}
@@ -169,7 +148,14 @@ const DropDownFile = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500" onClick={trash ? permaDeleteBtn : deleteFileBtn}>
+            <AlertDialogAction
+              className="bg-red-500"
+              onClick={() =>
+                trash
+                  ? permaDeleteBtn(file._id, permaDelete, sestIsOpenDialog)
+                  : deleteFileBtn(file._id, moveToTrash, sestIsOpenDialog)
+              }
+            >
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>

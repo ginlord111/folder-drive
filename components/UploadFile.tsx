@@ -64,7 +64,7 @@ const UploadFileDialog = () => {
       });
       form.reset();
       setIsOpenFile(false);
-      toast({
+      ({
         variant: "success",
         //@ts-ignore
         title: (
@@ -85,7 +85,7 @@ const UploadFileDialog = () => {
 
   const fileRef = form.register("file");
   return (
-    <Dialog open={isOpenFile} onOpenChange={setIsOpenFile} >
+    <Dialog open={isOpenFile} onOpenChange={setIsOpenFile}>
       <DialogTrigger>
         <Button size="sm">Upload File</Button>
       </DialogTrigger>
