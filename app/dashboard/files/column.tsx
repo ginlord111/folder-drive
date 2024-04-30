@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import { deleteFileBtn, favFileBtn, permaDeleteBtn } from "@/helper/functions";
+import { FileFunction, deleteFileBtn, favFileBtn, permaDeleteBtn } from "@/helper/functions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +13,6 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { formatRelative } from "date-fns";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { usePathname } from "next/navigation";
-import { moveToTrash } from "@/convex/files";
 import { toast } from "@/components/ui/use-toast";
 const UserCell = ({ userId }: { userId: Id<"users"> }) => {
   const user = useQuery(api.users.getUserProfile, { userId });
@@ -56,17 +54,10 @@ export const columns: ColumnDef<Doc<"files">>[] = [
     header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const deleteFavFile = useMutation(api.files.deleteFavFile);
-      const favFile = useMutation(api.files.createFavoriteFile);
-      const permaDelete = useMutation(api.files.permaDelete);
-      const moveToTrash = useMutation(api.files.moveToTrash);
-      const restoreFile = useMutation(api.files.restoreFile);
-      const pathname = usePathname();
-      const fileUrl = useQuery(api.files.getImage, {
-        fileId: row.original.fileId,
-      });
+    const {deleteFavFile,favFile,permaDelete,moveToTrash,restoreFile,pathname,fileUrl} = FileFunction()
       const isNotFavPage = pathname !== "/dashboard/favorites";
       const isTrashPage = pathname === "/dashboard/trash";
+    const URL =   fileUrl(row.original.fileId)
       const handleRestoreDownloadBtn = async () => {
         if(isTrashPage){
           await restoreFile({fileId:row.original._id})
@@ -77,7 +68,7 @@ export const columns: ColumnDef<Doc<"files">>[] = [
           });
         }
         else{
-          window.open(fileUrl?.url as string, "_blank")
+          window.open(URL?.url as string, "_blank")
         }
       }
       return (
@@ -127,6 +118,6 @@ export const columns: ColumnDef<Doc<"files">>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       );
+  }
     },
-  },
 ];

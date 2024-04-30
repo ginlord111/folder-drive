@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { FileSearch } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { fileSearchSchema } from "@/lib/utils";
+import { fileSearchSchema } from "@/helper/types";
 import {
   Form,
   FormControl,

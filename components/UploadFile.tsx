@@ -23,13 +23,13 @@ import { Input } from "./ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { uploadFileSchema } from "@/lib/utils";
+import { uploadFileSchema } from "@/helper/types";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { Loader2, CircleCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { fileTypes } from "@/lib/utils";
+import { fileTypes } from "@/helper/types";
 const UploadFileDialog = () => {
   const [isOpenFile, setIsOpenFile] = useState<boolean>(false);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);

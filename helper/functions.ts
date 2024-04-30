@@ -1,9 +1,11 @@
+"use client"
 import { toast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ReactMutation, useMutation } from "convex/react";
+import { ReactMutation, useMutation, useQuery } from "convex/react";
 import { FunctionReference } from "convex/server";
 import { ConvexError } from "convex/values";
+import { usePathname } from "next/navigation";
 import React, { Dispatch, SetStateAction } from "react";
 export const deleteFileBtn = async (
   fileId: Id<"files">,
@@ -101,3 +103,35 @@ export const favFileBtn = async (
     });
   }
 };
+
+
+export const FileFunction  = () => {
+  const deleteFavFile = useMutation(api.files.deleteFavFile);
+  const favFile = useMutation(api.files.createFavoriteFile);
+  const permaDelete = useMutation(api.files.permaDelete);
+  const moveToTrash = useMutation(api.files.moveToTrash);
+  const restoreFile = useMutation(api.files.restoreFile);
+  const pathname = usePathname();
+  const fileUrl = (fileId:Id<"_storage">) => {
+    const fileUrl = useQuery(api.files.getImage, {
+      fileId,
+    });
+
+    return fileUrl;
+  }
+
+  return {
+    deleteFavFile:deleteFavFile,
+    favFile:favFile,
+    permaDelete:permaDelete,
+    moveToTrash:moveToTrash,
+    restoreFile:restoreFile,
+    pathname:pathname,
+    fileUrl:fileUrl,
+  }
+}
+
+
+
+
+
