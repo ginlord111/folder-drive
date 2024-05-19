@@ -2,7 +2,7 @@ import { httpRouter } from "convex/server";
 
 import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
-import { getUserId } from "@/helper/get-user-id";
+import { getUserId } from "../helper/get-user-id";
 const http = httpRouter();
 
 http.route({
