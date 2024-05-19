@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { cn } from "@/lib/utils";
-import { FileHeart, Trash, File } from "lucide-react";
+import { FileHeart, Trash, File, KeySquare } from "lucide-react";
 import { usePathname } from "next/navigation";
 const SideBar = () => {
   const pathname = usePathname();
@@ -26,6 +26,12 @@ const SideBar = () => {
       href: "/dashboard/trash",
       pathname: pathname === "/dashboard/trash",
     },
+    {
+      name: "APIs",
+      icon: KeySquare,
+      href: "/dashboard/api",
+      pathname: pathname === "/dashboard/api",
+    },
   ];
   return (
     <MaxWidthWrapper>
@@ -36,7 +42,7 @@ const SideBar = () => {
               href={menu.href}
               className={cn(
                 "flex gap-2 p-3 w-full justify-start",
-                menu.pathname && "text-blue-500"
+                menu.pathname && "text-blue-500",
               )}
               key={index}
             >
