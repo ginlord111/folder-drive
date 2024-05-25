@@ -49,7 +49,7 @@ const FileCard = ({
     }
   };
   console.log(favoriteFiles, "FAVORITE FILES")
-
+   
   return (
     <Card className="lg:max-w-[350px] max-w-[250px] sm:max-w-[300px]   mt-20 overflow-hidden ">
       <CardHeader className="max-w-2xl flex">
